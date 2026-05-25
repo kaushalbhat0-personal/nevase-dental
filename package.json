@@ -1,0 +1,16 @@
+{
+  "name": "medical_webapp",
+  "private": true,
+  "description": "Root scripts delegate to backend/frontend (Vite app).",
+  "scripts": {
+    "build": "npm run build --prefix backend/frontend",
+    "dev": "npm run dev --prefix backend/frontend",
+    "preview": "npm run preview --prefix backend/frontend",
+    "lint": "npm run lint --prefix backend/frontend",
+    "test": "npm run test --prefix backend/frontend"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-switch": "^1.2.6"
+  }
+}

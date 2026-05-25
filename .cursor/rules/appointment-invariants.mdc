@@ -1,0 +1,13 @@
+---
+description: Appointment mutations must keep doctor/tenant invariants enforced
+globs: backend/app/services/**/*appointment*.py,backend/app/services/billing_service.py,backend/app/services/inventory_service.py
+alwaysApply: false
+---
+
+# Appointment integrity
+
+- Any **service-layer** code that **creates, updates, completes, deletes**, or **ties billing or inventory** to an `Appointment` must enforce alignment between `appointment.doctor_id`, `appointment.tenant_id`, and the assigned `Doctor` row.
+- **Do not** add new mutation paths that only touch ORM rows without going through `appointment_service` / `billing_service` / `inventory_service` patterns already in this repo.
+- After persisting appointment changes, call `AppointmentInvariantGuard.finalize(db, appointment_id)` or `revalidate_appointment_invariants` from `app.services.appointment_invariant_enforcement` (or `validate_appointment_invariants` before commit where that is the established pattern).
+- For read-only verification of production data, use `GET /api/v1/admin/integrity-scan` (or `scan_system_invariants` in `integrity_scan_service` for scripts; deploy gate in `backend/scripts/integrity_scan_gate.py`).
+- **Roadmap:** superadmin tenant context should eventually prefer explicit route/service selection over ambient headers (`X-Tenant-ID`); preserve the rule **resource tenant wins over header** when aligning access.

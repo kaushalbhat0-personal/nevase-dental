@@ -1,0 +1,6 @@
+{
+    "kiroAgent.configureMCP": "Disabled",
+    "chat.tools.terminal.autoApprove": {
+        "&": true
+    }
+}

@@ -1,0 +1,624 @@
+# =============================================================================
+# .clinerules — Medical WebApp (Hospital ERP)
+# FastAPI + React 19 + TypeScript 6 + PostgreSQL | Windows 11 / PowerShell
+# =============================================================================
+# This file governs AI-assisted development behaviour for this monorepo.
+# It is NOT a style guide — it is an execution contract.
+# =============================================================================
+
+# =============================================================================
+# 1. GENERAL CODING RULES
+# =============================================================================
+# - Use Python 3.11+ type hints everywhere (from __future__ import annotations).
+# - Prefer explicit imports over wildcard imports (no `from x import *`).
+# - Use `| None` over `Optional[]` for nullable types.
+# - Use `Self` return type for class methods returning `self`.
+# - Use `Session` from SQLAlchemy, never raw connections in service/crud layers.
+# - Use `UUID` for all primary/foreign keys (not int).
+# - Use `text()` from SQLAlchemy for raw SQL, never string interpolation.
+# - Use `contextlib.contextmanager` or `@asynccontextmanager` for resource lifecycle.
+# - Use `logging` over `print()` for all diagnostic output.
+# - Use `from __future__ import annotations` at top of every Python file.
+# - Prefer `pydantic` BaseSettings / BaseModel for configuration and schemas.
+# - Use `@property` for computed fields, never bare methods named `get_*` for simple accessors.
+# - Use `enum.StrEnum` or `enum.IntEnum` for enumerated types, not plain strings.
+# - Use `|` operator for union types in Python 3.10+.
+# - Use `match`/`case` for multi-branch conditional logic where appropriate.
+
+# =============================================================================
+# 2. ARCHITECTURE PRESERVATION RULES
+# =============================================================================
+# - NEVER redesign the existing RBAC system. Roles are: super_admin, admin, staff,
+#   doctor, patient. Capability-based auth coexists with role-based auth.
+# - NEVER remove tenant isolation. Every query must filter by tenant_id unless
+#   explicitly cross-tenant (super_admin integrity scan).
+# - NEVER rewrite the workspace system (backend/frontend/src/workspace/).
+#   Workspace registry, resolver, route isolation, and layouts are off-limits
+#   for redesign.
+# - NEVER rewrite appointment invariants (appointment_invariants.py,
+#   appointment_invariant_enforcement.py). These are hardened production code.
+# - NEVER replace the service-layer pattern (router -> service -> crud -> ORM).
+# - NEVER bypass idempotency for CREATE operations (appointments, doctors, tenants,
+#   appointment completion).
+# - NEVER change the global-patient architecture: patient.tenant_id is ALWAYS NULL.
+#   Tenant context is derived from appointments, NOT from patient.tenant_id.
+# - NEVER use role-name checks for doctor actions. Use capability-based auth via
+#   get_current_doctor() + Doctor record verification.
+# - NEVER trust frontend tenant IDs, role names, or JWT claims alone. Resource
+#   ownership + invariants are authoritative.
+# - NEVER create a separate Visit table. Appointment is the encounter anchor.
+# - NEVER write to patient.tenant_id. The field exists for legacy compatibility
+#   but remains permanently NULL.
+
+# =============================================================================
+# 3. BACKEND SAFETY RULES
+# =============================================================================
+# - All mutation endpoints must go through service layer (router -> service -> crud).
+# - All service-layer mutations that touch appointments must call
+#   AppointmentInvariantGuard.finalize(db, appointment_id) or
+#   revalidate_appointment_invariants() before returning.
+# - All CREATE operations should support Idempotency-Key header.
+# - All queries must be tenant-scoped unless explicitly cross-tenant.
+# - Use get_current_tenant_id() dependency for tenant resolution.
+# - Use align_operation_tenant_with_resource() for mutation tenant enforcement.
+# - Use assert_authorized() from security_audit for cross-tenant access validation.
+# - Never use current_user.role == "doctor" for authorization. Use
+#   doctor_service.get_current_doctor(db, current_user) instead.
+# - Prefer explicit CRUD functions over inline queries in service layer.
+# - Use ServiceError / NotFoundError / ForbiddenError / ConflictError from
+#   app.services.exceptions for all error responses.
+# - Use log_structured_audit_event() for critical operations.
+# - Use as_db_uuid() from app.utils.db_uuids for UUID conversion in raw SQL.
+# - Use non_nil_tenant_id() from app.core.tenancy to sanitize tenant UUIDs.
+# - Use ensure_default_tenant_exists() at startup, never in request handlers.
+# - Prefer Session.begin() context manager for transactional boundaries.
+
+# =============================================================================
+# 4. FRONTEND SAFETY RULES
+# =============================================================================
+# - NEVER rewrite the workspace system (registry.tsx, resolver.ts, route-isolation.tsx,
+#   layouts/*, WorkspaceSwitcher.tsx).
+# - NEVER bypass route isolation (route-isolation.tsx enforces workspace scoping).
+# - Use the container/presentational pattern: pages fetch data, components render UI.
+# - Use custom hooks for data fetching and state logic (hooks/ directory).
+# - Use handler pattern for API calls (handlers/ directory).
+# - Use services/ for API client functions (axios-based).
+# - Use types/index.ts for shared TypeScript interfaces.
+# - Use validation/schemas.ts for Zod validation schemas.
+# - Use @/ path alias for imports (configured in tsconfig.json).
+# - Use shadcn/ui components from components/ui/ (dialog, switch, checkbox, etc.).
+# - Use lucide-react for icons.
+# - Use react-hot-toast for toast notifications.
+# - Use react-router-dom v7 for routing.
+# - Use framer-motion for animations (components in animations/).
+# - Use dayjs for date formatting.
+# - Use class-variance-authority + tailwind-merge for component variants.
+# - NEVER hardcode API URLs. Use services/api.ts base configuration.
+# - NEVER store tokens in localStorage without understanding the security model.
+
+# =============================================================================
+# 5. MIGRATION / ALEMBIC SAFETY RULES
+# =============================================================================
+# - ALL migrations must be ADDITIVE only. Never drop columns or tables.
+# - Never use batch operations that could lock production tables.
+# - Always generate migrations with: alembic revision --autogenerate -m "description"
+# - Always verify with: alembic upgrade head --sql (dry-run in offline mode).
+# - Always check current state with: alembic current
+# - Always review autogenerated migrations before applying.
+# - Use `import app.models` in env.py to ensure all models are loaded.
+# - Use `from app.core.database import Base` for metadata.
+# - Use `from app.core.config import settings` for DATABASE_URL.
+# - Prefer nullable columns for new fields (backward compatibility).
+# - Use server_default for non-nullable new columns with existing data.
+# - Never use PostgreSQL-only types in migrations that must be SQLite-compatible
+#   for testing (unless the migration is explicitly @pytest.mark.postgres).
+# - For CITEXT or other PG-only features, use raw SQL with dialect guards.
+# - Always name revision files with descriptive prefixes (e.g., z1_, z2_).
+# - Never delete old migration files.
+# - Never squash migration history.
+# - Keep idempotency tables (creation, completion) in sync with their source tables.
+# - Migration filenames should follow the pattern: z{N}_{description}.py
+
+# =============================================================================
+# 6. TYPESCRIPT BUILD RULES
+# =============================================================================
+# - The frontend build command is: npx tsc -b (uses project references).
+# - To type-check without emitting: npx tsc --noEmit
+# - FIX unused import errors IMMEDIATELY after creating or editing any .ts/.tsx file.
+# - Use `@/` path alias for all internal imports (e.g., `@/services/api`).
+# - Use `import type` for type-only imports to avoid bundler issues.
+# - Use `interface` over `type` for object shapes (consistent with codebase).
+# - Use `type` for unions, intersections, and utility types.
+# - Use `as const` for literal constants.
+# - Use ` satisfies ` operator for type-safe expressions without widening.
+# - Use `unknown` over `any` for values of uncertain type.
+# - Use `z.infer<typeof schema>` for Zod-inferred types.
+# - Keep barrel exports (index.ts files) in sync with module additions.
+# - Run `npx tsc --noEmit` after any file creation or import change.
+# - The tsconfig uses project references (tsconfig.app.json + tsconfig.node.json).
+# - NEVER use `// @ts-ignore` or `// @ts-expect-error` without documented justification.
+
+# =============================================================================
+# 7. TESTING RULES
+# =============================================================================
+# - Default test database is SQLite in-memory (pytest.ini configures this).
+# - PostgreSQL-only tests must use @pytest.mark.postgres marker.
+# - Use factories.py for test data creation, not inline model instantiation.
+# - Use conftest.py fixtures: db_session, client (httpx.AsyncClient).
+# - Use pytest_asyncio for async test fixtures.
+# - Use httpx.AsyncClient with ASGITransport for API tests.
+# - Each test gets a clean database (autouse _reset_database fixture).
+# - Test files go in backend/tests/ with test_ prefix.
+# - Run tests with: pytest backend/tests/test_file.py -v
+# - Run PostgreSQL tests with: $env:PYTEST_DATABASE_URL="postgresql://..."; pytest -m postgres
+# - Use fast-check for property-based testing where appropriate.
+# - Frontend E2E tests use Playwright: npx playwright test
+# - Always write tests for new service-layer functions.
+# - Always write tests for new API endpoints.
+# - Test idempotency paths for CREATE operations.
+# - Test tenant isolation (cross-tenant access should fail).
+# - Test invariant enforcement (appointment-doctor mismatch should fail).
+
+# =============================================================================
+# 8. POWERSHELL / WINDOWS TERMINAL RULES
+# =============================================================================
+# - NEVER use bash syntax. This is a Windows 11 environment.
+# - NEVER use `&&` to chain commands.
+# - NEVER use `cmd /c` to invoke cmd.exe.
+# - NEVER use Linux commands: grep, sed, awk, find, xargs, cut, sort, uniq, wc.
+# - NEVER use `|` to pipe between commands (PowerShell pipes are acceptable for
+#   simple object piping, but avoid complex pipelines).
+# - NEVER use `;` to sequence commands on one line.
+# - Use PowerShell-compatible commands ONLY.
+# - Use Set-Location (or `cd`) to change directories.
+# - Use Get-ChildItem (or `dir` / `ls`) to list files.
+# - Use Get-Content (or `type` / `cat`) to read files.
+# - Use Select-String for text search (NOT grep/findstr).
+# - Use python, npx, npm, pip, alembic as direct commands (they are in PATH).
+# - Use `$env:VAR_NAME="value"` to set environment variables.
+# - Use `python -m venv .venv` to create virtual environments.
+# - Use `.\.venv\Scripts\Activate.ps1` to activate virtual environments.
+
+# --- GOOD PowerShell commands (use these) ---
+# Set-Location "d:\Kaushal\Python\Python Projects\medical_webapp"
+# npx tsc --noEmit
+# pytest backend/tests/test_file.py -v
+# alembic current
+# python -m app.main
+# npm run dev
+# npm run build
+# $env:DATABASE_URL="sqlite:///test.db"; pytest backend/tests/
+# python -m pytest backend/tests/test_appointments.py -x -v
+# npx playwright test
+# alembic upgrade head
+# alembic revision --autogenerate -m "description"
+# pip install -r requirements.txt
+# npm install
+
+# --- BAD commands (NEVER generate these) ---
+# cmd /c "cd backend && alembic upgrade head"
+# npm run build && npx tsc
+# grep -r "pattern" backend/
+# sed -i 's/old/new/g' file.py
+# awk '{print $1}' data.txt
+# cat file.txt | grep pattern | sort | uniq
+# cd backend && python -m app.main
+# find . -name "*.py" | xargs grep "pattern"
+# 2>&1 | findstr "error"
+# pip install -r requirements.txt && alembic upgrade head
+# npm test 2>&1 | tee output.log
+
+# =============================================================================
+# 9. ANTI-FREEZE TERMINAL EXECUTION RULES
+# =============================================================================
+# - NEVER chain commands with `&&`, `|`, `;`, or `||`.
+# - NEVER use streaming filters that hold the terminal open (e.g., `tail -f`,
+#   `--watch`, `--follow`).
+# - NEVER use `|` to pipe output into filters in a way that blocks.
+# - NEVER run long-running processes in a way that prevents subsequent commands.
+# - Each command must be executed ONE AT A TIME.
+# - Wait for command completion before issuing the next command.
+# - Use `--no-pager` flags where available to prevent interactive pagers.
+# - Use `-y` or `--yes` flags for package managers to prevent prompts.
+# - For dev servers, use the VS Code terminal's built-in run-in-background
+#   rather than backgrounding with `&` or `Start-Process`.
+# - Prefer commands that exit cleanly (build, test, lint) over daemon processes.
+# - If a command produces long output, redirect to a file rather than piping
+#   through a pager: npx tsc --noEmit > tsc_output.txt 2>&1
+
+# =============================================================================
+# 10. OUTPUT FORMATTING RULES
+# =============================================================================
+# - Present changes as structured diffs (SEARCH/REPLACE blocks).
+# - Show before/after context for every edit.
+# - Use clear section headers when presenting multi-file changes.
+# - Report progress checkpoints during long tasks.
+# - Summarize what was done and what remains at each checkpoint.
+# - Use task_progress parameter to track checklist completion.
+# - When reporting errors, include the full error message and context.
+# - When suggesting fixes, explain the root cause, not just the symptom.
+
+# =============================================================================
+# 11. FILE EDITING RULES
+# =============================================================================
+# - Prefer replace_in_file over write_to_file for surgical edits.
+# - Use write_to_file only for new files or complete rewrites (rare).
+# - After creating a new file, verify imports are correct.
+# - After editing a file, check for unused imports.
+# - After editing a TypeScript file, run npx tsc --noEmit to verify.
+# - After editing a Python file, run pytest on related tests.
+# - Never leave placeholder code, TODO comments, or commented-out code
+#   unless explicitly marked with a tracked TODO.
+# - Never create "stub" implementations that would compile but fail at runtime.
+# - Never create fake/mock implementations that skip real logic.
+# - Always verify that new files are registered in barrel exports (index.ts / __init__.py).
+
+# =============================================================================
+# 12. FORBIDDEN OPERATIONS
+# =============================================================================
+# - NEVER generate AI diagnosis or triage systems. This is a hospital management
+#   system, not a clinical decision support system.
+# - NEVER expose SOAP notes, clinical notes, or internal doctor-facing data
+#   to patient-facing endpoints.
+# - NEVER create duplicate/shadow healthcare tables (e.g., a second patients
+#   table, a second appointments table).
+# - NEVER redesign the existing architecture without explicit instruction.
+# - NEVER rewrite existing RBAC or tenant isolation.
+# - NEVER create dangerous migrations (destructive, non-additive).
+# - NEVER generate fake code completion or placeholder APIs unless explicitly
+#   marked with a tracked TODO.
+# - NEVER make silent schema assumptions (always verify model fields exist).
+# - NEVER create hidden migrations (always version-controlled, always reviewed).
+# - NEVER use `# type: ignore` or `@ts-ignore` without documented justification.
+# - NEVER commit .env files, secrets, or credentials.
+# - NEVER use `print()` for production logging.
+# - NEVER use `input()` in production code.
+# - NEVER use `eval()` or `exec()`.
+# - NEVER use `pickle` for untrusted data.
+
+# =============================================================================
+# 13. INCREMENTAL IMPLEMENTATION STRATEGY
+# =============================================================================
+# - Break every task into small, verifiable steps.
+# - Each step must produce a working state (no half-implemented features).
+# - After each step, validate: does the app still start? Do tests pass?
+# - Use stop-and-validate checkpoints:
+#   1. Plan the change (what files, what pattern)
+#   2. Implement the change
+#   3. Verify with type-checker / linter / tests
+#   4. Commit or checkpoint
+# - If a step would take more than 15 minutes of coding, break it further.
+# - Never implement multiple independent features in a single step.
+# - When fixing bugs, first write a failing test, then fix, then verify.
+# - When adding features, start with the data layer (model/schema), then
+#   service layer, then API, then frontend.
+
+# =============================================================================
+# 14. LONG TASK EXECUTION STRATEGY
+# =============================================================================
+# - For tasks estimated >30 minutes, create a phase plan first.
+# - Each phase must have a clear entry/exit criteria.
+# - Between phases, validate: tests pass, build succeeds, no regressions.
+# - Each phase must have a rollback strategy (git revert or migration downgrade).
+# - Document progress in task_progress checklist.
+# - If a phase reveals unexpected complexity, stop and reassess before proceeding.
+# - Never skip validation gates to "save time" — this always costs more time.
+# - Long-running migrations must be tested against a copy of production data first.
+
+# =============================================================================
+# 15. REACT / TYPESCRIPT IMPORT HYGIENE RULES
+# =============================================================================
+# - After creating ANY new .ts/.tsx file, verify all imports resolve correctly.
+# - After editing ANY .ts/.tsx file, check for unused imports and remove them.
+# - Run `npx tsc --noEmit` after any import change.
+# - Use barrel exports (index.ts) for directory-level exports.
+# - When adding a file to a directory with an index.ts, update the index.ts.
+# - Use `import type` for type-only imports to avoid runtime bundler issues.
+# - Use `@/` path alias, never relative paths that traverse many levels.
+# - Never import from a file's internal path if a barrel export exists.
+# - Keep services/index.ts in sync with new service files.
+# - Keep types/index.ts in sync with new type definitions.
+# - Keep validation/index.ts in sync with new validation schemas.
+# - Keep workspace/layouts/index.ts in sync with new workspace layouts.
+# - Keep animations/index.ts in sync with new animation components.
+# - Keep constants/index.ts in sync with new constant files.
+# - Keep hooks/index.ts in sync with new hooks.
+# - Keep handlers/index.ts in sync with new handlers.
+# - Keep utils/index.ts in sync with new utility files.
+
+# =============================================================================
+# 16. SQLALCHEMY / POSTGRESQL COMPATIBILITY RULES
+# =============================================================================
+# - Prefer portable SQLAlchemy types (String, Integer, Boolean, DateTime, Text,
+#   Float, Enum, UUID) over PostgreSQL-only types (ARRAY, JSONB, HSTORE, CITEXT,
+#   INTERVAL, TSVECTOR) unless explicitly required.
+# - When using PostgreSQL-only types, ensure the feature is gated behind
+#   @pytest.mark.postgres for tests.
+# - Use `Mapped[]` annotation style for column definitions (SQLAlchemy 2.0).
+# - Use `mapped_column()` over deprecated `Column()`.
+# - Use `relationship()` with `lazy="selectin"` or `lazy="joined"` explicitly.
+# - Use `back_populates=` over `backref=` for bidirectional relationships.
+# - Use `UUID` type from SQLAlchemy for primary/foreign keys.
+# - Use `sa_enum` for enum types (not plain strings).
+# - Use `server_default=text("now()")` for created_at timestamps.
+# - Use `onupdate=func.now()` for updated_at timestamps.
+# - Use `index=True` for frequently queried foreign keys.
+# - Use `unique=True` with care (consider composite unique constraints).
+# - Use `CompositeIndex` or `__table_args__` for multi-column indexes.
+# - Verify SQLite compatibility: SQLite does not support:
+#   - ARRAY, JSONB (use JSON string or separate table)
+#   - CITEXT (use String + unique constraint)
+#   - ENUM with custom values (use String + check constraint)
+#   - DISTINCT ON (use subquery or different approach)
+#   - ALTER COLUMN (use add column + drop old approach)
+#   - DROP COLUMN (not supported; use recreate table approach)
+#   - Schemas other than main/temp
+#   - Multiple foreign key cascade paths
+# - For test compatibility, prefer `text()` with dialect-specific branches
+#   rather than assuming PostgreSQL features are available.
+
+# =============================================================================
+# 17. MEDICAL COMPLIANCE AND PRIVACY BOUNDARIES
+# =============================================================================
+# - NEVER expose SOAP notes, clinical notes, diagnosis, or treatment_summary
+#   to patient-facing endpoints. These are doctor/internal only.
+# - NEVER generate AI diagnosis, triage, or clinical decision support systems.
+# - NEVER create endpoints that allow patients to view other patients' data.
+# - NEVER expose internal audit logs to non-admin users.
+# - NEVER expose idempotency keys or internal identifiers to patients.
+# - Patient-accessible data is limited to: appointments (own), billing (own),
+#   medication schedules (own), communication preferences (own).
+# - Doctor-accessible data includes: assigned patients, own appointments,
+#   clinical notes (read/write for own patients).
+# - Admin-accessible data includes: tenant-wide aggregates, doctor management,
+#   billing overview, integrity scans.
+# - Super admin-accessible data includes: cross-tenant integrity scans,
+#   tenant management, system-wide audit.
+# - Always use patient_has_active_appointment_in_tenant() to verify patient
+#   access within a tenant context.
+# - Always use assert_authorized() for cross-tenant access validation.
+# - Always log security-relevant events with log_structured_audit_event().
+
+# =============================================================================
+# 18. WORKSPACE / RBAC PRESERVATION RULES
+# =============================================================================
+# - NEVER rewrite workspace/registry.tsx. This is the authoritative workspace
+#   registration point.
+# - NEVER rewrite workspace/resolver.ts. Workspace resolution logic is hardened.
+# - NEVER rewrite workspace/route-isolation.tsx. Route isolation enforces
+#   workspace scoping and must not be bypassed.
+# - NEVER rewrite workspace/layouts/*. These are workspace-specific layouts
+#   that encapsulate navigation and structure.
+# - NEVER rewrite workspace/WorkspaceSwitcher.tsx. Workspace switching logic
+#   is production-tested.
+# - NEVER rewrite workspace/contextual-redirects.ts. Redirect logic is
+#   carefully designed for each workspace.
+# - NEVER add new workspaces without registering in registry.tsx and creating
+#   a layout in workspace/layouts/.
+# - NEVER bypass route isolation for navigation. Always use workspace-aware
+#   routing.
+# - NEVER hardcode workspace IDs or role names in frontend navigation.
+# - Use workspace/registry.tsx to look up workspace configurations.
+# - Use workspace/resolver.ts to resolve workspace from route/context.
+# - Use workspace/route-isolation.tsx to guard routes by workspace.
+# - The existing workspaces are: FrontDesk, Operations, Procurement, Finance,
+#   Doctor, Patient. Do not rename or restructure them.
+
+# =============================================================================
+# 19. PERFORMANCE AND DX RULES
+# =============================================================================
+# - Prefer surgical fixes over large refactors. Change only what is needed.
+# - Use lazy imports for heavy modules (e.g., reportlab, matplotlib).
+# - Use selectinload for to-many relationships to avoid N+1 queries.
+# - Use joinedload for to-one relationships where the related row is always needed.
+# - Use contains_eager when the relationship is already joined in the query.
+# - Use limit/offset for list endpoints (pagination).
+# - Use indexing for frequently filtered columns.
+# - Use connection pooling (pool_pre_ping=True, pool_size, max_overflow).
+# - Use caching for expensive read operations (integrity scan cache, slot cache).
+# - Use Redis (Upstash REST) for distributed caching where configured.
+# - Avoid loading entire tables into memory.
+# - Use select [columns] instead of select [entire model] when only specific
+#   columns are needed.
+# - Use `__slots__` for Python data classes with many instances.
+# - Use `functools.lru_cache` for pure function memoization.
+# - Use `asyncio` for I/O-bound operations in FastAPI endpoints.
+# - For frontend, use React.memo sparingly and only with measured benefit.
+# - Use useMemo and useCallback for expensive computations, not for trivial ones.
+# - Use lazy loading for route components (React.lazy + Suspense).
+# - Use vite's built-in code splitting (dynamic import()).
+
+# =============================================================================
+# 20. GIT SAFETY RULES
+# =============================================================================
+# - NEVER force-push to main or master branches.
+# - NEVER commit directly to main. Use feature branches.
+# - ALWAYS review the diff before committing.
+# - Use meaningful commit messages: "type(scope): description"
+#   Examples: feat(appointments): add clinical notes fields
+#             fix(billing): correct tax calculation for refunds
+#             test(encounter): add idempotency test for completion
+#             refactor(service): extract invariant validation
+# - Keep commits small and focused on a single concern.
+# - NEVER commit with --no-verify (bypassing hooks).
+# - NEVER commit generated files (dist/, .pyc, __pycache__, node_modules/).
+# - NEVER commit .env files or secrets.
+# - Use .gitignore to exclude build artifacts.
+# - Before committing, ensure: tests pass, type-check passes, lint passes.
+# - Use `git status` to verify what will be committed.
+# - Use `git diff --cached` to review staged changes.
+# - Use `git add -p` for interactive staging of specific hunks.
+
+# =============================================================================
+# 21. API CONTRACT PRESERVATION RULES
+# =============================================================================
+# - NEVER silently change response shapes. Every API response change must be
+#   coordinated with frontend consumers.
+# - NEVER rename response keys without updating all consumers (frontend services,
+#   types, tests, E2E tests).
+# - Prefer additive response fields (add new keys, don't remove or rename old ones).
+# - When adding fields to responses, ensure they are optional (nullable) for
+#   backward compatibility.
+# - Validate frontend/backend contract alignment: if a Pydantic schema field
+#   changes, the corresponding TypeScript interface must be updated.
+# - Use Pydantic's `model_dump()` with `by_alias=True` for consistent serialization.
+# - Use `response_model` in FastAPI route decorators for explicit response schemas.
+# - Use `status_code` in route decorators for explicit HTTP status codes.
+# - Never return raw ORM models from API endpoints. Always use Pydantic schemas.
+# - Never change endpoint paths without adding a redirect or alias.
+# - Never change HTTP methods for existing endpoints.
+# - When deprecating fields, use Pydantic's `@field_validator` with deprecation
+#   warnings before removal.
+
+# =============================================================================
+# 22. RENDER / VERCEL DEPLOYMENT RULES
+# =============================================================================
+# - ALWAYS verify the build locally before assuming deployment will succeed.
+#   Run: npm run build (frontend) and verify no TypeScript errors.
+# - NEVER assume Render uses the latest artifact until confirmed. Render builds
+#   from the git branch, not local files.
+# - Keep migrations idempotent: `ON CONFLICT DO NOTHING` / `IF NOT EXISTS`
+#   patterns so re-running migrations is safe.
+# - Avoid environment-specific assumptions in code. Use settings from
+#   app.core.config.Settings (loaded from environment variables).
+# - Preserve cold-start safety: ensure_default_tenant_exists() is idempotent,
+#   database connection validation happens in lifespan, not in request handlers.
+# - Production settings enforce:
+#   - REQUIRE_APPOINTMENT_COMPLETION_IDEMPOTENCY_KEY must be true
+#   - SECRET_KEY must not be the dev fallback
+#   - DATABASE_URL must not use SQLite
+# - CORS must explicitly list allowed origins. Wildcard is not allowed for
+#   credentialed requests.
+# - The production frontend origin is:
+#   https://hospital-management-system-nine-topaz.vercel.app
+# - The production API is served by Render (or configured deployment platform).
+# - Frontend build output goes to backend/frontend/dist/.
+# - In production, FastAPI serves the built frontend from dist/.
+
+# =============================================================================
+# 23. ERROR HANDLING RULES
+# =============================================================================
+# - NEVER suppress exceptions silently. Every except block must log or explain.
+# - NEVER use bare `except:` without specifying exception type(s).
+# - NEVER use blanket `try/except Exception` without logging the error.
+# - Prefer explicit validation errors using ValidationError from
+#   app.services.exceptions.
+# - Preserve HTTP status semantics:
+#   - 200 OK for successful GET/PUT/PATCH
+#   - 201 Created for successful POST
+#   - 204 No Content for successful DELETE
+#   - 400 Bad Request for validation errors
+#   - 401 Unauthorized for missing/invalid authentication
+#   - 403 Forbidden for insufficient permissions
+#   - 404 Not Found for missing resources
+#   - 409 Conflict for idempotency key conflicts / duplicate operations
+#   - 422 Unprocessable Entity for Pydantic validation errors
+#   - 429 Too Many Requests for rate limiting
+#   - 500 Internal Server Error for unexpected errors
+# - Avoid raw crashes from UUID coercion failures. Use try/except around
+#   UUID() construction with meaningful error messages.
+# - Avoid raw crashes from missing attributes. Use hasattr() or try/except
+#   AttributeError with context.
+# - Use ServiceError as the base for all service-layer exceptions.
+# - Use FastAPI exception handlers for consistent error response formatting.
+# - Log errors with logger.exception() for full traceback context.
+
+# =============================================================================
+# 24. SQLALCHEMY QUERY SAFETY RULES
+# =============================================================================
+# - NEVER reference model fields that do not exist in the database schema.
+#   Always verify field names against the actual model definition.
+# - Validate DISTINCT ON ordering for PostgreSQL: DISTINCT ON requires ORDER BY
+#   to start with the same columns. SQLite does not support DISTINCT ON at all.
+# - Avoid lazy assumptions about relationships. Always verify that a
+#   relationship() exists before using it in a query.
+# - Prefer explicit joins (join(), outerjoin()) over implicit relationship loading
+#   for complex queries.
+# - Prefer select() with specific columns over select() of entire models when
+#   only a subset of columns is needed.
+# - Verify SQLite compatibility when using dialect-specific features:
+#   - DISTINCT ON → not supported in SQLite
+#   - JSON/JSONB functions → not supported in SQLite
+#   - ARRAY → not supported in SQLite
+#   - Full-text search → different syntax in SQLite
+#   - Window functions → supported in SQLite 3.25+ (verify version)
+# - Use `with_for_update()` for pessimistic locking in PostgreSQL (skip in SQLite).
+# - Use `execution_options(schema_translate_map={...})` for multi-schema queries.
+# - Use `text()` with bound parameters for raw SQL, never f-strings.
+# - Use `aliased()` for self-referential joins.
+
+# =============================================================================
+# 25. FRONTEND ROUTING SAFETY RULES
+# =============================================================================
+# - NEVER hardcode literal route params like `:id` in navigation code.
+#   Use template strings or route builder functions.
+# - Use `useParams()` to extract route parameters, never parse from window.location.
+# - Validate navigation paths after route refactors. Run the app and click through
+#   affected routes.
+# - Preserve backward-compatible redirects when renaming routes.
+# - Use `useNavigate()` for programmatic navigation, never window.location.href.
+# - Use `<Link>` for declarative navigation, never `<a>` tags for internal routes.
+# - Use workspace-aware routing: routes are scoped by workspace in route-isolation.tsx.
+# - Route patterns:
+#   - / → workspace resolver
+#   - /login, /signup, /reset-password → auth routes (no workspace)
+#   - /admin/* → admin workspace
+#   - /doctor/* → doctor workspace
+#   - /patient/* → patient workspace
+#   - /front-desk/* → front desk workspace
+#   - /operations/* → operations workspace
+#   - /procurement/* → procurement workspace
+#   - /finance/* → finance workspace
+# - Use workspace/contextual-redirects.ts for post-login redirect resolution.
+# - Use workspace/resolver.ts to determine which workspace a user should see.
+
+# =============================================================================
+# 26. OPERATIONAL WORKFLOW INVARIANTS
+# =============================================================================
+# - Appointment remains the encounter anchor. Never create a separate Visit
+#   or Encounter table that duplicates appointment semantics.
+# - Billing invariants cannot be bypassed:
+#   - Bill.tenant_id must match Appointment.tenant_id
+#   - Bill.appointment_id must reference a valid appointment
+#   - Bill status transitions: pending → paid (no reverse)
+#   - Idempotency for bill creation where applicable
+# - Medication schedules are derived layers only:
+#   - PatientMedicationSchedule is a patient-level entity, not a visit entity
+#   - Medication adherence logs are audit records, not clinical orders
+#   - Medication schedules do not affect billing or inventory directly
+# - Procurement/inventory mutations must remain auditable:
+#   - All inventory movements must have a reference type and ID
+#   - Purchase orders track status transitions (draft → ordered → received → cancelled)
+#   - Inventory consumption is linked to appointments via AppointmentInventoryUsage
+# - Queue transitions must preserve operational state flow:
+#   - ClinicQueueEntry status: waiting → in_consultation → completed / cancelled
+#   - Queue status transitions are one-directional (no going back)
+#   - Queue entries are tenant-scoped and appointment-linked
+# - Operational alerts are informational, not transactional:
+#   - Alerts do not block operations
+#   - Alert severity levels: critical, warning, info
+#   - Alerts are tenant-scoped
+# - Staff tasks are assignment records:
+#   - Tasks are assigned to users within a tenant
+#   - Task status: pending → in_progress → completed
+#   - Tasks are not workflow blockers
+
+# =============================================================================
+# ANTI-HALLUCINATION RULES
+# =============================================================================
+# - NEVER generate code that references files, functions, or classes that do not
+#   exist in this repository. Verify existence before referencing.
+# - NEVER assume the existence of database columns, indexes, or constraints
+#   without checking the model definition or migration history.
+# - NEVER assume the existence of API endpoints, query parameters, or response
+#   fields without checking the router/schema definitions.
+# - NEVER generate fake code completion. If you are unsure about an implementation
+#   detail, ask or use a TODO marker.
+# - NEVER create placeholder APIs that return hardcoded data unless explicitly
+#   marked with a tracked TODO and wrapped in a feature flag.
+# - NEVER make silent schema assumptions. Always read the model file to verify
+#   field names, types, and relationships.
+# - NEVER create hidden migrations. Every migration must be a version-controlled
+#   file in backend/alembic/versions/.
+# - NEVER assume a package, library, or tool is installed without checking
+#   requirements.txt, package.json, or node_modules before use.
