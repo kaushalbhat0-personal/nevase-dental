@@ -36,7 +36,13 @@ from app.schemas.doctor import (
     DoctorTimeOffUpdate,
     DoctorUpdate,
 )
-from app.services import doctor_availability_service, doctor_service, doctor_slot_service
+from app.schemas.doctor_profile import DoctorProfileVerificationAdmin
+from app.services import (
+    doctor_availability_service,
+    doctor_profile_service,
+    doctor_service,
+    doctor_slot_service,
+)
 from app.services.exceptions import ValidationError
 from app.services.user_roles_service import user_read_with_roles
 
@@ -158,6 +164,23 @@ def promote_doctor_to_admin(
     db.commit()
     db.refresh(user)
     return user_read_with_roles(db, user)
+
+
+@router.patch("/{doctor_id}/verify", response_model=dict)
+def verify_doctor_profile(
+    doctor_id: UUID,
+    body: DoctorProfileVerificationReview,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_current_user_admin_or_owner),
+):
+    doctor_profile_service.set_verification_status_admin(
+        db,
+        doctor_id=doctor_id,
+        status=body.status,
+        reason=body.reason,
+    )
+    db.commit()
+    return {"message": f"Doctor verification status set to '{body.status}'"}
 
 
 @router.get("/{doctor_id}/slots", response_model=list[DoctorSlotRead])

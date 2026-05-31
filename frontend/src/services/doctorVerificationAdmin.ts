@@ -109,7 +109,7 @@ export const doctorVerificationAdminApi = {
     doctorId: string,
     body: { status: string; reason?: string | null }
   ): Promise<unknown> => {
-    const { data } = await api.patch(`/admin/doctor-profiles/${doctorId}/verification`, body);
+    const { data } = await api.patch(`/doctors/${doctorId}/verify`, body);
     return data;
   },
 };

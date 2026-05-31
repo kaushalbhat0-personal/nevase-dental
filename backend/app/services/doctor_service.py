@@ -202,7 +202,9 @@ def create_hospital_doctor_with_login(
         )
         doctor_data["user_id"] = new_user.id
         doctor = crud_doctor.create_doctor_tx(db, doctor_data)
-        doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+        prof = doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+        prof.verification_status = "approved"
+        db.flush()
         if idempotency_key:
             try:
                 crud_doctor.record_doctor_idempotency(
