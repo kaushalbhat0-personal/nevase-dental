@@ -26,7 +26,7 @@ import {
   NIL_TENANT_UUID,
 } from '../utils/tenantIdForRequest';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 // Debug: Log API configuration
 if (import.meta.env.DEV) {

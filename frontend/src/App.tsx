@@ -91,7 +91,7 @@ const PatientDashboard = lazy(() => import('./pages/patient/PatientDashboard'));
 const PatientPrescriptions = lazy(() => import('./pages/patient/PatientPrescriptions'));
 const PatientMedications = lazy(() => import('./pages/patient/PatientMedications'));
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 const warmUpBackend = async () => {
   try {
