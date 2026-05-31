@@ -1,15 +1,19 @@
+import logging
 import uuid
 from uuid import UUID
 
 from sqlalchemy import text
 
 from app.core.database import engine
+from app.core.security import hash_password
 from app.models.tenant import TenantType
 from app.utils.db_uuids import as_db_uuid
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_TENANT_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
-# Sentinel sometimes stored by mistake; treat as “no tenant” like NULL.
+# Sentinel sometimes stored by mistake; treat as "no tenant" like NULL.
 NIL_TENANT_UUID_SENTINEL = UUID("00000000-0000-0000-0000-000000000000")
 
 
@@ -47,6 +51,27 @@ def ensure_default_tenant_exists() -> None:
                     "type": TenantType.organization.value,
                 },
             )
+
+            # ── Seed default admin user if none exists ──
+            existing_admin = conn.execute(
+                text("SELECT id FROM users WHERE role = 'admin' LIMIT 1")
+            ).fetchone()
+
+            if not existing_admin:
+                conn.execute(
+                    text("""
+                        INSERT INTO users (id, email, hashed_password, full_name, role, is_active)
+                        VALUES (:id, :email, :password, :name, :role, true)
+                        ON CONFLICT (email) DO NOTHING
+                    """),
+                    {
+                        "id": str(uuid.uuid4()),
+                        "email": "admin@nevase.com",
+                        "password": hash_password("Admin@123"),
+                        "name": "Clinic Admin",
+                        "role": "admin",
+                    },
+                )
+                logger.info("Default admin user created: admin@nevase.com")
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).warning(f"Could not seed default tenant: {e}")
+        logger.warning(f"Could not seed default tenant: {e}")
