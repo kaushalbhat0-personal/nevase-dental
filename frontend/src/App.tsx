@@ -407,6 +407,101 @@ function AnimatedRoutes() {
         />
 
         <Route
+          path="/admin/doctors"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <Doctors />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/patients"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <Patients />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/appointments"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <Appointments />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/billing"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <Billing />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <Billing />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/patients"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
