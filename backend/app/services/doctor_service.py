@@ -209,6 +209,7 @@ def create_hospital_doctor_with_login(
         doctor = crud_doctor.create_doctor_tx(db, doctor_data)
         prof = doctor_profile_service.ensure_profile_for_doctor(db, doctor)
         prof.verification_status = "approved"
+        prof.is_profile_complete = True
         db.flush()
         if idempotency_key:
             try:
@@ -517,7 +518,10 @@ def create_independent_doctor(
     doctor_data["tenant_id"] = tenant.id
     doctor_data["user_id"] = user_id
     doctor = crud_doctor.create_doctor_tx(db, doctor_data)
-    doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+    prof = doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+    prof.verification_status = "approved"
+    prof.is_profile_complete = True
+    db.flush()
     logger.info(
         "[DOCTOR CREATED] user_id=%s doctor_id=%s tenant_id=%s (individual practice tenant)",
         user_id,
@@ -610,7 +614,10 @@ def create_doctor(
         doctor_data["user_id"] = resolved_user_id
 
     doctor = crud_doctor.create_doctor_tx(db, doctor_data)
-    doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+    prof = doctor_profile_service.ensure_profile_for_doctor(db, doctor)
+    prof.verification_status = "approved"
+    prof.is_profile_complete = True
+    db.flush()
 
     if doctor.user_id is None:
         logger.warning(
@@ -743,15 +750,12 @@ def get_doctor_or_404_with_tenant(db: Session, doctor_id: UUID) -> Doctor:
 
 
 def get_current_doctor(db: Session, current_user: User) -> Doctor:
-    """Single source of truth: doctor row for this login, with tenant and structured profile enforced."""
+    """Doctor row for this login (profile completion gate removed for single-clinic mode)."""
     doctor = crud_doctor.get_doctor_by_user_id(db, current_user.id)
     if doctor is None:
         raise ForbiddenError("Doctor profile not found")
     if doctor.tenant is None:
         raise ForbiddenError("Doctor tenant is not set")
-    prof = crud_doctor_profile.get_by_doctor_id(db, doctor.id)
-    if prof is None or not prof.is_profile_complete:
-        raise ForbiddenError("Doctor profile incomplete")
     return doctor
 
 

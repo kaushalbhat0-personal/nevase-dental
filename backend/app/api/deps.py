@@ -172,19 +172,7 @@ def require_structured_profile_complete(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
-    """
-    If this account has a linked `doctors` row, block most APIs until
-    `doctor_profiles.is_profile_complete` (clinicians cannot use the app with a stub profile).
-    Does not apply to users without a linked doctor (e.g. staff-only, patients).
-    """
-    logger.debug("[TRACE_MC] entered require_structured_profile_complete: user=%s role=%s", current_user.id, current_user.role)
-    doctor = crud_doctor.get_doctor_by_user_id(db, current_user.id)
-    if doctor is None:
-        logger.debug("[TRACE_MC] require_structured_profile_complete: no doctor row -> pass")
-        return
-    prof = crud_doctor_profile.get_by_doctor_id(db, doctor.id)
-    if prof is None or not prof.is_profile_complete:
-        raise ForbiddenError("Complete your profile to continue")
+    """No-op: profile completion is auto-approved for single-clinic mode."""
 
 
 
@@ -192,22 +180,7 @@ def require_doctor_verification_approved(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> None:
-    """
-    For accounts with primary role ``doctor``, always require a linked roster row and
-    marketplace-approved structured profile for high-trust actions (no bypass when
-    the doctor row is missing).
-    """
-    from app.services.doctor_profile_service import is_doctor_active
-
-    if current_user.role != UserRole.doctor:
-        return
-    doctor = crud_doctor.get_doctor_by_user_id(db, current_user.id)
-    if doctor is None:
-        raise ForbiddenError("Doctor verification pending")
-    prof = crud_doctor_profile.get_by_doctor_id(db, doctor.id)
-    if is_doctor_active(prof):
-        return
-    raise ForbiddenError("Doctor verification pending")
+    """No-op: verification is auto-approved for single-clinic mode."""
 
 
 def get_current_users_doctor_for_structured_profile(

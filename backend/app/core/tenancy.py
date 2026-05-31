@@ -82,5 +82,19 @@ def ensure_default_tenant_exists() -> None:
                     raise
             else:
                 logger.info(f"Admin already exists: id={existing_admin[0]}")
+
+            # ── Fix existing doctor profiles (single-clinic mode: all approved) ──
+            logger.info("Fixing doctor profiles: setting is_profile_complete=true, verification_status=approved...")
+            conn.execute(
+                text("""
+                    UPDATE doctor_profiles
+                    SET is_profile_complete = true,
+                        verification_status = 'approved'
+                    WHERE is_profile_complete = false
+                       OR verification_status != 'approved'
+                       OR verification_status IS NULL
+                """)
+            )
+            conn.commit()
     except Exception as e:
         logger.warning(f"Could not seed default tenant: {e}")
