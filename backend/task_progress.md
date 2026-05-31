@@ -1,0 +1,28 @@
+# Implementation Progress: feat/clinic-operations-and-staff-workflows-part-1
+
+- [x] Plan approved, switching to ACT MODE
+- [ ] 1. Extend AppointmentStatus enum in model
+- [ ] 2. Create ClinicQueueEntry model
+- [ ] 3. Create migration z8_clinic_workflow_states.py
+- [ ] 4. Create clinic_queue schemas
+- [ ] 5. Create crud_clinic_queue.py
+- [ ] 6. Create queue_service.py
+- [ ] 7. Create front_desk_service.py
+- [ ] 8. Create nurse_workflow_service.py
+- [ ] 9. Create clinic_queue endpoints
+- [ ] 10. Create front_desk endpoints
+- [ ] 11. Create nurse_workflow endpoints
+- [ ] 12. Register new routers in api/v1/router.py
+- [ ] 13. Update models/__init__.py
+- [ ] 14. Update appointment_service.py for new states
+- [ ] 15. Update appointment schemas
+- [ ] 16. Update crud_appointment.py for new states
+- [ ] 17. Create frontend service frontDesk.ts
+- [ ] 18. Create FrontDeskDashboard.tsx
+- [ ] 19. Create QueueManagementPanel.tsx
+- [ ] 20. Create AppointmentStatusActions.tsx
+- [ ] 21. Update frontend types/index.ts
+- [ ] 22. Update frontend App.tsx with routes
+- [ ] 23. Update frontend appointments.ts service
+- [ ] 24. Create test_clinic_operations.py
+- [ ] 25. Verify all files and final review
