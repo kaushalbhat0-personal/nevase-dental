@@ -100,25 +100,30 @@ export function AvailabilityWindowModal({
 
   const submit = async () => {
     setFormError(null);
+    if (!start.trim() || !end.trim()) {
+      setFormError('Please fill all fields');
+      return;
+    }
     const st = toApiTime(start);
     const en = toApiTime(end);
     if (timeToMinutes(st) >= timeToMinutes(en)) {
       setFormError('End time must be after start time.');
       return;
     }
-    if (!Number.isFinite(slotMins) || slotMins < 1) {
+    const dur = Number.isFinite(slotMins) ? slotMins : 30;
+    if (dur < 1) {
       setFormError('Slot duration must be at least 1 minute.');
       return;
     }
     const spanMin = timeToMinutes(en) - timeToMinutes(st);
-    if (spanMin < slotMins) {
+    if (spanMin < dur) {
       setFormError('Window is too small for the slot length (at least one full slot is required).');
       return;
     }
     if (
       windowOverlapsExisting(dow, st, en, allWindows, mode === 'edit' && initial ? String(initial.id) : undefined)
     ) {
-      setFormError('This range overlaps another window on the same day.');
+      setFormError('You already have an availability window for this day. Please delete it first before adding a new one.');
       return;
     }
     setSubmitting(true);
@@ -127,7 +132,7 @@ export function AvailabilityWindowModal({
         day_of_week: dow,
         start_time: st,
         end_time: en,
-        slot_duration: Math.floor(slotMins),
+        slot_duration: Math.floor(dur),
       });
       onClose();
     } catch (e) {
@@ -222,7 +227,10 @@ export function AvailabilityWindowModal({
               min={1}
               className="mt-1"
               value={slotMins}
-              onChange={(e) => setSlotMins(parseInt(e.target.value, 10))}
+              onChange={(e) => {
+                const v = e.target.value;
+                setSlotMins(v === '' ? 30 : parseInt(v, 10));
+              }}
               disabled={submitting}
             />
           </div>
