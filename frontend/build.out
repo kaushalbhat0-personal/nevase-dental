@@ -1,0 +1,371 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v8.0.8 [32mbuilding client environment for production...[36m[39m
+[2Ktransforming...✓ 2307 modules transformed.
+[33m[lightningcss minify] Unknown at rule: @theme
+1  |  ...translate-y{syntax:"*";inherits:false;initial-value:0}@theme inline{--animation-delay-0: 0s; --animation-delay-75:...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...0%,70%,100% { opacity: 1; }20%,50% { opacity: 0; }}}@utility animation-duration-*{--tw-animation-duration: calc(--...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...e(--animation-duration-*,[duration],"initial",[*]);}@utility delay-*{animation-delay: calc(--value(number)*1ms); a...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...alue(--animation-delay-*,[duration],"initial",[*]);}@utility repeat-*{animation-iteration-count: --value(--animati...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...--value(--animation-repeat-*,number,"initial",[*]);}@utility direction-*{animation-direction: --value(--animation-...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...on: --value(--animation-direction-*,"initial",[*]);}@utility fill-mode-*{animation-fill-mode: --value(--animation-...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...de: --value(--animation-fill-mode-*,"initial",[*]);}@utility running{animation-play-state: running;}@utility pause...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...]);}@utility running{animation-play-state: running;}@utility paused{animation-play-state: paused;}@utility play-st...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ning;}@utility paused{animation-play-state: paused;}@utility play-state-*{animation-play-state: --value("initial",...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ate-*{animation-play-state: --value("initial",[*]);}@utility blur-in{--tw-enter-blur: 20px;}@utility blur-in-*{--t...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...tial",[*]);}@utility blur-in{--tw-enter-blur: 20px;}@utility blur-in-*{--tw-enter-blur: calc(--value(number)*1px);...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...mber)*1px); --tw-enter-blur: --value(--blur-*,[*]);}@utility blur-out{--tw-exit-blur: 20px;}@utility blur-out-*{--...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...lur-*,[*]);}@utility blur-out{--tw-exit-blur: 20px;}@utility blur-out-*{--tw-exit-blur: calc(--value(number)*1px);...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...umber)*1px); --tw-exit-blur: --value(--blur-*,[*]);}@utility fade-in{--tw-enter-opacity: 0;}@utility fade-in-*{--t...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...lur-*,[*]);}@utility fade-in{--tw-enter-opacity: 0;}@utility fade-in-*{--tw-enter-opacity: calc(--value(number)/10...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...); --tw-enter-opacity: --value(--percentage-*,[*]);}@utility fade-out{--tw-exit-opacity: 0;}@utility fade-out-*{--...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...age-*,[*]);}@utility fade-out{--tw-exit-opacity: 0;}@utility fade-out-*{--tw-exit-opacity: calc(--value(number)/10...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...0); --tw-exit-opacity: --value(--percentage-*,[*]);}@utility zoom-in{--tw-enter-scale: 0;}@utility zoom-in-*{--tw-...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ntage-*,[*]);}@utility zoom-in{--tw-enter-scale: 0;}@utility zoom-in-*{--tw-enter-scale: calc(--value(number)*1%);...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...o)); --tw-enter-scale: --value(--percentage-*,[*]);}@utility -zoom-in-*{--tw-enter-scale: calc(--value(number)*-1%...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-1); --tw-enter-scale: --value(--percentage-*,[*]);}@utility zoom-out{--tw-exit-scale: 0;}@utility zoom-out-*{--tw...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ntage-*,[*]);}@utility zoom-out{--tw-exit-scale: 0;}@utility zoom-out-*{--tw-exit-scale: calc(--value(number)*1%);...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...io)); --tw-exit-scale: --value(--percentage-*,[*]);}@utility -zoom-out-*{--tw-exit-scale: calc(--value(number)*-1%...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...*-1); --tw-exit-scale: --value(--percentage-*,[*]);}@utility spin-in{--tw-enter-rotate: 30deg;}@utility spin-in-*{...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-*,[*]);}@utility spin-in{--tw-enter-rotate: 30deg;}@utility spin-in-*{--tw-enter-rotate: calc(--value(number)*1de...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...60deg); --tw-enter-rotate: --value(--rotate-*,[*]);}@utility -spin-in{--tw-enter-rotate: -30deg;}@utility -spin-in...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...,[*]);}@utility -spin-in{--tw-enter-rotate: -30deg;}@utility -spin-in-*{--tw-enter-rotate: calc(--value(number)*-1...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...60deg); --tw-enter-rotate: --value(--rotate-*,[*]);}@utility spin-out{--tw-exit-rotate: 30deg;}@utility spin-out-*...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-*,[*]);}@utility spin-out{--tw-exit-rotate: 30deg;}@utility spin-out-*{--tw-exit-rotate: calc(--value(number)*1de...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...360deg); --tw-exit-rotate: --value(--rotate-*,[*]);}@utility -spin-out{--tw-exit-rotate: -30deg;}@utility -spin-ou...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...,[*]);}@utility -spin-out{--tw-exit-rotate: -30deg;}@utility -spin-out-*{--tw-exit-rotate: calc(--value(number)*-1...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...360deg); --tw-exit-rotate: --value(--rotate-*,[*]);}@utility slide-in-from-top{--tw-enter-translate-y: -100%;}@uti...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ty slide-in-from-top{--tw-enter-translate-y: -100%;}@utility slide-in-from-top-*{--tw-enter-translate-y: calc(--va...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...c(--value(--translate-*,[percentage],[length])*-1);}@utility slide-in-from-bottom{--tw-enter-translate-y: 100%;}@u...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ... slide-in-from-bottom{--tw-enter-translate-y: 100%;}@utility slide-in-from-bottom-*{--tw-enter-translate-y: calc(-...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...te-y: --value(--translate-*,[percentage],[length]);}@utility slide-in-from-left{--tw-enter-translate-x: -100%;}@ut...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...y slide-in-from-left{--tw-enter-translate-x: -100%;}@utility slide-in-from-left-*{--tw-enter-translate-x: calc(--v...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...c(--value(--translate-*,[percentage],[length])*-1);}@utility slide-in-from-right{--tw-enter-translate-x: 100%;}@ut...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...y slide-in-from-right{--tw-enter-translate-x: 100%;}@utility slide-in-from-right-*{--tw-enter-translate-x: calc(--...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...te-x: --value(--translate-*,[percentage],[length]);}@utility slide-in-from-start{&:dir(ltr){ --tw-enter-translate-...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-100%; }&:dir(rtl){ --tw-enter-translate-x: 100%; }}@utility slide-in-from-start-*{&:where(:dir(ltr),[dir="ltr"],[...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-x: --value(--translate-*,[percentage],[length]); }}@utility slide-in-from-end{&:dir(ltr){ --tw-enter-translate-x:...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...100%; }&:dir(rtl){ --tw-enter-translate-x: -100%; }}@utility slide-in-from-end-*{&:where(:dir(ltr),[dir="ltr"],[di...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...--value(--translate-*,[percentage],[length])*-1); }}@utility slide-out-to-top{--tw-exit-translate-y: -100%;}@utili...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...lity slide-out-to-top{--tw-exit-translate-y: -100%;}@utility slide-out-to-top-*{--tw-exit-translate-y: calc(--valu...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...c(--value(--translate-*,[percentage],[length])*-1);}@utility slide-out-to-bottom{--tw-exit-translate-y: 100%;}@uti...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ty slide-out-to-bottom{--tw-exit-translate-y: 100%;}@utility slide-out-to-bottom-*{--tw-exit-translate-y: calc(--v...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...te-y: --value(--translate-*,[percentage],[length]);}@utility slide-out-to-left{--tw-exit-translate-x: -100%;}@util...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ity slide-out-to-left{--tw-exit-translate-x: -100%;}@utility slide-out-to-left-*{--tw-exit-translate-x: calc(--val...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...c(--value(--translate-*,[percentage],[length])*-1);}@utility slide-out-to-right{--tw-exit-translate-x: 100%;}@util...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...ity slide-out-to-right{--tw-exit-translate-x: 100%;}@utility slide-out-to-right-*{--tw-exit-translate-x: calc(--va...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...te-x: --value(--translate-*,[percentage],[length]);}@utility slide-out-to-start{&:dir(ltr){ --tw-exit-translate-x:...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ... -100%; }&:dir(rtl){ --tw-exit-translate-x: 100%; }}@utility slide-out-to-start-*{&:where(:dir(ltr),[dir="ltr"],[d...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ...-x: --value(--translate-*,[percentage],[length]); }}@utility slide-out-to-end{&:dir(ltr){ --tw-exit-translate-x: 1...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+1  |  ... 100%; }&:dir(rtl){ --tw-exit-translate-x: -100%; }}@utility slide-out-to-end-*{&:where(:dir(ltr),[dir="ltr"],[dir...
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @theme
+1  |  ...c(--value(--translate-*,[percentage],[length])*-1); }}@theme inline {
+   |                                                                 ^
+2  |    @keyframes accordion-down {
+3  |      from {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+23 |      }
+24 |    }
+25 |  }/* Custom variants */@custom-variant data-open {
+   |                                       ^
+26 |    &:where([data-state="open"]),
+27 |    &:where([data-open]:not([data-open="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+28 |      @slot;
+29 |    }
+30 |  }@custom-variant data-closed {
+   |                  ^
+31 |    &:where([data-state="closed"]),
+32 |    &:where([data-closed]:not([data-closed="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+33 |      @slot;
+34 |    }
+35 |  }@custom-variant data-checked {
+   |                  ^
+36 |    &:where([data-state="checked"]),
+37 |    &:where([data-checked]:not([data-checked="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+38 |      @slot;
+39 |    }
+40 |  }@custom-variant data-unchecked {
+   |                  ^
+41 |    &:where([data-state="unchecked"]),
+42 |    &:where([data-unchecked]:not([data-unchecked="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+43 |      @slot;
+44 |    }
+45 |  }@custom-variant data-selected {
+   |                  ^
+46 |    &:where([data-selected="true"]) {
+47 |      @slot;[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+47 |      @slot;
+48 |    }
+49 |  }@custom-variant data-disabled {
+   |                  ^
+50 |    &:where([data-disabled="true"]),
+51 |    &:where([data-disabled]:not([data-disabled="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+52 |      @slot;
+53 |    }
+54 |  }@custom-variant data-active {
+   |                  ^
+55 |    &:where([data-state="active"]),
+56 |    &:where([data-active]:not([data-active="false"])) {[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+57 |      @slot;
+58 |    }
+59 |  }@custom-variant data-horizontal {
+   |                  ^
+60 |    &:where([data-orientation="horizontal"]) {
+61 |      @slot;[39m
+[33m[lightningcss minify] Unknown at rule: @custom-variant
+61 |      @slot;
+62 |    }
+63 |  }@custom-variant data-vertical {
+   |                  ^
+64 |    &:where([data-orientation="vertical"]) {
+65 |      @slot;[39m
+[33m[lightningcss minify] Unknown at rule: @utility
+65 |      @slot;
+66 |    }
+67 |  }@utility no-scrollbar {
+   |           ^
+68 |    -ms-overflow-style: none;
+69 |    scrollbar-width: none;[39m
+rendering chunks...
+computing gzip size...
+dist/index.html                                           0.46 kB │ gzip:   0.29 kB
+dist/assets/geist-cyrillic-wght-normal-CHSlOQsW.woff2    14.69 kB
+dist/assets/geist-latin-ext-wght-normal-DMtmJ5ZE.woff2   15.30 kB
+dist/assets/geist-latin-wght-normal-Dm3htQBi.woff2       28.40 kB
+dist/assets/index-Cc_n11v2.css                           89.48 kB │ gzip:  16.73 kB
+dist/assets/index-B8CCAStq.js                           963.56 kB │ gzip: 273.52 kB
+
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 2.25s[39m

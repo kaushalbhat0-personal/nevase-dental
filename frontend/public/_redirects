@@ -1,0 +1,3 @@
+# Netlify-style redirects for SPA routing
+# Fallback for hosts that don't use vercel.json
+/*    /index.html   200
