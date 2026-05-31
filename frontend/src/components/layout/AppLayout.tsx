@@ -25,7 +25,7 @@ export default function AppLayout({ children, user, onLogout }: AppLayoutProps) 
     <div
       className={cn(
         "flex min-h-screen w-full overflow-y-auto text-foreground",
-        resolvedMode === "admin" && "bg-slate-50/80 dark:bg-slate-950/80",
+        resolvedMode === "admin" && "bg-[#F8FAFC]",
         resolvedMode === "practice" && "bg-background"
       )}
     >

@@ -43,12 +43,12 @@ import {
   Pill,
   Receipt,
   Search,
-  ShieldCheck,
   ShoppingCart,
   Stethoscope,
   Syringe,
   Truck,
   User,
+  UserPlus,
   UserRound,
   Users,
   Wallet,
@@ -242,15 +242,18 @@ export const WORKSPACE_REGISTRY: Record<WorkspaceSlug, WorkspaceConfig> = {
     id: 'admin',
     label: 'Admin',
     icon: Building2,
-    description: 'Organization management and settings',
+    description: "Nevase's Dental Clinic",
     landingRoute: '/admin/dashboard',
     sections: [
       {
         title: 'Management',
         items: [
           { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-          { path: '/admin/tenants', label: 'Tenants', icon: Building2 },
-          { path: '/admin/doctor-verifications', label: 'Verifications', icon: ShieldCheck },
+          { path: '/patients', label: 'Patients', icon: Users },
+          { path: '/appointments', label: 'Appointments', icon: Calendar },
+          { path: '/doctors', label: 'Doctors', icon: Stethoscope },
+          { path: '/billing', label: 'Billing', icon: Receipt },
+          { path: '/admin/inventory', label: 'Inventory', icon: Package },
         ],
       },
       {
@@ -258,11 +261,13 @@ export const WORKSPACE_REGISTRY: Record<WorkspaceSlug, WorkspaceConfig> = {
         items: [
           { path: '/admin/branding', label: 'Branding', icon: Palette },
           { path: '/admin/communications', label: 'Communications', icon: Bell },
+          { path: '/admin/reports', label: 'Reports', icon: BarChart3 },
         ],
       },
     ],
     quickActions: [
-      { path: '/admin/dashboard', label: 'Reports', icon: BarChart3 },
+      { path: '/patients', label: 'Add Patient', icon: UserPlus },
+      { path: '/appointments', label: 'New Appointment', icon: CalendarPlus },
     ],
   },
 

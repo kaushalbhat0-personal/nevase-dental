@@ -53,7 +53,7 @@ export function Sidebar({ user, onClose, isCollapsed, onToggleCollapse }: Sideba
     <div
       className={cn(
         'flex h-full min-h-screen w-full flex-col border-r border-border/80 bg-white',
-        useAdminModeLayout && 'border-slate-200/80 bg-slate-50/95 dark:border-slate-800 dark:bg-slate-950/50'
+        useAdminModeLayout && 'border-slate-200/80 bg-white'
       )}
     >
       {/* ── Header ─────────────────────────────────────── */}

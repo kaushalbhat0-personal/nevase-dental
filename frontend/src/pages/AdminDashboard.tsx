@@ -94,7 +94,7 @@ export default function AdminDashboard() {
   const todayStr = dayjs().format('dddd, MMMM D, YYYY');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 py-6 sm:py-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* ── TOP BAR ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── LOADING ── */}
-      {(busy) && (
+      {busy && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-28 rounded-2xl bg-gray-100 animate-pulse" />
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
         <>
           {/* ── 4 STAT CARDS ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-green-500 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold text-[#0F172A]">{metrics.appointments_today}</p>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-blue-500 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold text-[#0F172A]">{totalPatients}</p>
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-yellow-500 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold text-[#0F172A]">{metrics.pending_bills}</p>
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-purple-500 hover:shadow-md transition-all">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-3xl font-bold text-[#0F172A]">{formatCurrency(metrics.total_revenue)}</p>
