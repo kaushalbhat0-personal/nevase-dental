@@ -36,7 +36,7 @@ from app.schemas.doctor import (
     DoctorTimeOffUpdate,
     DoctorUpdate,
 )
-from app.schemas.doctor_profile import DoctorProfileVerificationAdmin
+from app.schemas.doctor_profile import DoctorProfileVerificationReview
 from app.services import (
     doctor_availability_service,
     doctor_profile_service,

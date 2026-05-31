@@ -161,9 +161,6 @@ def create_hospital_doctor_with_login(
         raise ValidationError("Password must be at least 8 characters")
     email_norm = str(account_email).strip().lower()
 
-    if crud_user.get_user_by_email(db, email_norm):
-        raise ValidationError("Email already registered")
-
     doctor_data["tenant_id"] = tenant_id
 
     if current_user.role != UserRole.super_admin:
@@ -178,9 +175,17 @@ def create_hospital_doctor_with_login(
             resource_tenant_id=tenant_id,
         )
 
+    existing_user = crud_user.get_user_by_email(db, email_norm)
+
     try:
-        hashed = hash_password(pwd)
-        try:
+        if existing_user is not None:
+            hashed = hash_password(pwd)
+            existing_user.hashed_password = hashed
+            existing_user.role = UserRole.doctor
+            db.flush()
+            new_user = existing_user
+        else:
+            hashed = hash_password(pwd)
             new_user = crud_user.create_user_tx(
                 db,
                 {
@@ -190,8 +195,6 @@ def create_hospital_doctor_with_login(
                     "force_password_reset": True,
                 },
             )
-        except IntegrityError:
-            raise ValidationError("Email already registered") from None
 
         crud_tenant.create_user_tenant_tx(
             db,
@@ -1002,6 +1005,12 @@ def delete_doctor(
         doctor.tenant_id,
 
     )
+
+    # Cascade delete the associated user account
+    if doctor.user_id is not None:
+        user = crud_user.get_user(db, doctor.user_id)
+        if user is not None:
+            db.delete(user)
 
     crud_doctor.delete_doctor(db, doctor)
 
