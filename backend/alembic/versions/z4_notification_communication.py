@@ -342,10 +342,13 @@ def upgrade() -> None:
             "ON communication_templates (template_type)"
         )
 
+    # Ensure alembic_version can hold long revision IDs
+    op.execute("ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(256)")
 
 
 def downgrade() -> None:
     """Drop notification and communication tables."""
+    op.execute("ALTER TABLE alembic_version ALTER COLUMN version_num TYPE VARCHAR(32)")
 
     # Drop tables (order matters for FK constraints)
     op.drop_table("communication_templates")
