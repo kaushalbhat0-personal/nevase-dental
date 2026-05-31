@@ -45,6 +45,7 @@ export interface DoctorWorkspaceContextValue {
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+  patchSelfDoctor: (patch: Partial<Doctor>) => void;
 }
 
 const DoctorWorkspaceContext = createContext<DoctorWorkspaceContextValue | null>(null);
@@ -109,6 +110,13 @@ export function DoctorWorkspaceProvider({ children }: { children: ReactNode }) {
     };
   }, [load]);
 
+  const patchSelfDoctor = useCallback(
+    (patch: Partial<Doctor>) => {
+      setSelfDoctor((prev) => (prev ? { ...prev, ...patch } : null));
+    },
+    []
+  );
+
   const profilePartial = !loading && !error && selfDoctor === null;
   const isReadOnly = profilePartial;
   const isIndependent = !profilePartial && selfDoctor != null;
@@ -123,8 +131,9 @@ export function DoctorWorkspaceProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       refetch: load,
+      patchSelfDoctor,
     }),
-    [selfDoctor, tenantDoctorCount, isIndependent, isReadOnly, profilePartial, loading, error, load]
+    [selfDoctor, tenantDoctorCount, isIndependent, isReadOnly, profilePartial, loading, error, load, patchSelfDoctor]
   );
 
   return (

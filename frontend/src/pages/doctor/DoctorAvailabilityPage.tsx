@@ -36,7 +36,7 @@ function nonTemp(windows: DoctorAvailabilityWindow[]) {
 export function DoctorAvailabilityPage() {
   const { user } = useAuth();
   const { resolvedMode } = useAppMode();
-  const { isIndependent, isReadOnly, selfDoctor, loading: workspaceLoading, error: workspaceError, refetch: refetchWorkspace } =
+  const { isIndependent, isReadOnly, selfDoctor, loading: workspaceLoading, error: workspaceError, refetch: refetchWorkspace, patchSelfDoctor } =
     useDoctorWorkspace();
   /** Editing is allowed when the workspace resolved a single doctor profile (solo or clinic); not "clinic-only" as a product mode. */
   const canManageOwnSchedule = isIndependent;
@@ -111,9 +111,8 @@ export function DoctorAvailabilityPage() {
   const afterMutation = useCallback(
     (docId: string) => {
       invalidateDoctorSlotsClientCache(docId);
-      void refetchWorkspace();
     },
-    [refetchWorkspace]
+    []
   );
 
   const openCreate = () => {
@@ -151,10 +150,12 @@ export function DoctorAvailabilityPage() {
         created_at: new Date().toISOString(),
       };
       setWindows((prev) => sortAvailabilityWindows([...prev, optimistic]));
+      const isFirstWindow = nonTemp(windows).length === 0;
       try {
         const created = await doctorsApi.createAvailabilityWindow(doctorId, payload);
         setWindows((prev) => sortAvailabilityWindows([...prev.filter((w) => w.id !== tempId), created]));
         afterMutation(doctorId);
+        if (isFirstWindow) patchSelfDoctor({ has_availability_windows: true });
         toast.success('Availability window added');
         setSelectedDow(created.day_of_week);
       } catch (e) {
@@ -208,10 +209,12 @@ export function DoctorAvailabilityPage() {
     }
     const id = String(w.id);
     const snap = windows;
+    const isLastWindow = nonTemp(windows).length === 1;
     setWindows((prev) => sortAvailabilityWindows(prev.filter((x) => String(x.id) !== id)));
     try {
       await doctorsApi.deleteAvailabilityWindow(doctorId, id);
       afterMutation(doctorId);
+      if (isLastWindow) patchSelfDoctor({ has_availability_windows: false });
       toast.success('Window removed');
     } catch (e) {
       setWindows(snap);
@@ -258,6 +261,7 @@ export function DoctorAvailabilityPage() {
   const applyMonFriPreset = useCallback(async () => {
     if (!doctorId || !canManageOwnSchedule) return;
     setPresetBusy(true);
+    const hadWindowsBefore = nonTemp(windows).length > 0;
     try {
       const next: DoctorAvailabilityWindow[] = [...nonTemp(windows)];
       for (let d = 0; d < 5; d++) {
@@ -272,13 +276,14 @@ export function DoctorAvailabilityPage() {
       }
       setWindows(sortAvailabilityWindows(next));
       afterMutation(doctorId);
+      if (!hadWindowsBefore) patchSelfDoctor({ has_availability_windows: true });
       toast.success('Added Mon–Fri 9:00–17:00 where there were no hours');
     } catch (e) {
       toast.error(apiErr(e), { duration: 5000 });
     } finally {
       setPresetBusy(false);
     }
-  }, [doctorId, canManageOwnSchedule, windows, afterMutation]);
+  }, [doctorId, canManageOwnSchedule, windows, afterMutation, patchSelfDoctor]);
 
   if (workspaceLoading) {
     return (
@@ -512,7 +517,6 @@ export function DoctorAvailabilityPage() {
           readOnly={isReadOnly}
           onAfterChange={() => {
             if (doctorId) afterMutation(doctorId);
-            void refetchWorkspace();
           }}
         />
       )}
