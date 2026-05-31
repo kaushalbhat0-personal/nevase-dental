@@ -1,15 +1,12 @@
 import type { User } from '../types';
 import { getEffectiveRoles } from './roles';
 
-/** Marketplace trust gate: only `approved` may use full practice APIs (per backend). */
+/** Doctors are always approved (single clinic — no verification flow). */
 export function isDoctorVerificationApproved(
-  user: User | null | undefined,
-  token: string | null
+  _user: User | null | undefined,
+  _token: string | null
 ): boolean {
-  if (!user?.doctor_id) return true;
-  const eff = getEffectiveRoles(user, token);
-  if (!eff.includes('doctor')) return true;
-  return user.doctor_verification_status === 'approved';
+  return true;
 }
 
 function isRestrictedDoctorVerification(user: User | null | undefined): boolean {

@@ -1,45 +1,18 @@
-import { useCallback, useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { DoctorWorkspaceProvider, useDoctorWorkspace } from '../../contexts/DoctorWorkspaceContext';
 import { useAppMode } from '../../contexts/AppModeContext';
 import { Header } from './Header';
 import { DoctorSidebar } from './DoctorSidebar';
 import { Badge } from '@/components/ui/badge';
-import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { doctorProfileApi } from '../../services/doctorProfile';
-import toast from 'react-hot-toast';
-import { isDoctorVerificationApproved } from '../../utils/doctorVerification';
-import { getEffectiveRoles } from '../../utils/roles';
 
 function DoctorLayoutInner() {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const { resolvedMode } = useAppMode();
   const { isIndependent, selfDoctor, profilePartial, loading, error } = useDoctorWorkspace();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
-  const eff = getEffectiveRoles(user, token);
-  const isClinician = Boolean(user?.doctor_id) && eff.includes('doctor');
-  const approved = isDoctorVerificationApproved(user, token);
-  const [submittingVerification, setSubmittingVerification] = useState(false);
-  const vstat = user?.doctor_verification_status ?? null;
-  const showVerificationStrip =
-    isClinician && !approved && vstat != null && vstat !== '';
-
-  const submitForVerification = useCallback(async () => {
-    setSubmittingVerification(true);
-    try {
-      await doctorProfileApi.submitForVerification();
-      await refreshUser();
-      toast.success('Submitted for review');
-    } catch (e) {
-      console.error(e);
-      toast.error('Could not submit for verification');
-    } finally {
-      setSubmittingVerification(false);
-    }
-  }, [refreshUser]);
 
   return (
     <div
@@ -120,74 +93,6 @@ function DoctorLayoutInner() {
           <p className="border-b border-border/40 bg-primary/[0.04] px-4 py-1.5 text-center text-xs text-muted-foreground">
             Independent practice — patients, schedule, and billing in one place.
           </p>
-        )}
-
-        {showVerificationStrip && !loading && (
-          <div
-            className={cn(
-              'border-b px-4 py-3 text-sm',
-              vstat === 'rejected'
-                ? 'border-destructive/30 bg-destructive/5 text-destructive'
-                : 'border-amber-200/80 bg-amber-50 text-amber-950'
-            )}
-            role="status"
-          >
-            <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                {vstat === 'pending' && (
-                  <div>
-                    <p className="font-semibold tracking-tight">Under review</p>
-                    <p className="mt-1 text-sm font-normal opacity-90">
-                      Your profile is being verified. You’ll unlock patients, scheduling, and billing once
-                      approved.
-                    </p>
-                  </div>
-                )}
-                {vstat === 'draft' && (
-                  <p>
-                    Submit your profile for verification to unlock patients, appointments, availability, and
-                    billing.
-                  </p>
-                )}
-                {vstat === 'rejected' && (
-                  <div>
-                    <p className="font-medium">Verification needs attention</p>
-                    {user?.doctor_verification_rejection_reason ? (
-                      <p className="mt-1 text-sm opacity-90">{user.doctor_verification_rejection_reason}</p>
-                    ) : (
-                      <p className="mt-1 text-sm">Update your profile and resubmit for review.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-              {(vstat === 'draft' || vstat === 'rejected') &&
-                user?.doctor_profile_complete === true && (
-                  <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-center">
-                    {vstat === 'rejected' && (
-                      <Link
-                        to="/complete-profile"
-                        className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
-                      >
-                        Edit profile
-                      </Link>
-                    )}
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={vstat === 'rejected' ? 'default' : 'secondary'}
-                      disabled={submittingVerification}
-                      onClick={() => void submitForVerification()}
-                    >
-                      {submittingVerification
-                        ? 'Submitting…'
-                        : vstat === 'rejected'
-                          ? 'Resubmit for verification'
-                          : 'Submit for verification'}
-                    </Button>
-                  </div>
-                )}
-            </div>
-          </div>
         )}
 
         <main className="mx-auto w-full max-w-5xl flex-1 min-h-0 scroll-smooth overflow-y-auto px-4 py-6 md:px-6 lg:px-8">

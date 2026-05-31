@@ -134,7 +134,7 @@ def ensure_profile_for_doctor(db: Session, doctor: Doctor) -> DoctorProfile:
             "full_name": doctor.name,
             "specialization": doctor.specialization,
             "experience_years": doctor.experience_years,
-            "verification_status": VERIFICATION_DRAFT,
+            "verification_status": VERIFICATION_APPROVED,
         },
     )
     recompute_is_complete(row)
@@ -160,10 +160,9 @@ def upsert_profile_from_write(
             data={
                 "doctor_id": doctor.id,
                 "full_name": payload.full_name.strip(),
-                "verification_status": VERIFICATION_DRAFT,
+                "verification_status": VERIFICATION_APPROVED,
             },
         )
-    # Do not change verification_status on update; only submit_for_verification (or admin) may set pending.
     _apply_write_model(row, payload)
     row.updated_at = datetime.now(timezone.utc)
     recompute_is_complete(row)
@@ -216,36 +215,13 @@ def doctor_profile_complete_for_user(db: Session, *, user_id: UUID) -> bool | No
 
 
 def submit_profile_for_verification(db: Session, doctor: Doctor) -> DoctorProfile:
-    """Move draft or resubmit rejected → pending (org admin will approve/reject)."""
+    """Auto-approve profile (single clinic — no verification flow)."""
     row = ensure_profile_for_doctor(db, doctor)
     recompute_is_complete(row)
-    if not row.is_profile_complete:
-        raise ValidationError("Profile incomplete")
-    cur = row.verification_status
-    if cur == VERIFICATION_PENDING:
-        return row
-    if cur not in (VERIFICATION_DRAFT, VERIFICATION_REJECTED):
-        raise ValidationError("Profile cannot be submitted in its current state")
-    row.verification_status = VERIFICATION_PENDING
+    row.verification_status = VERIFICATION_APPROVED
     row.verification_rejection_reason = None
     row.updated_at = datetime.now(timezone.utc)
     db.add(row)
-    db.flush()
-    logger.info(
-        "[VERIFICATION_SUBMIT] doctor_id=%s status=%s -> %s",
-        doctor.id,
-        cur,
-        VERIFICATION_PENDING,
-    )
-    _append_verification_log(
-        db,
-        doctor_id=doctor.id,
-        from_status=cur,
-        to_status=VERIFICATION_PENDING,
-        reason=None,
-        reviewed_by_user_id=None,
-        tenant_id=doctor.tenant_id,
-    )
     db.flush()
     db.refresh(row)
     return row

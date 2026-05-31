@@ -132,18 +132,16 @@ export function needsStructuredDoctorProfile(
   return user.doctor_profile_complete === false;
 }
 
-/** Where to go after sign-in. Pass `user` (or an object with `doctor_id` + `doctor_profile_complete`) so incomplete doctor profiles are gated. */
+/** Where to go after sign-in. */
 export function postLoginHomePath(
   roles: string | string[] | null | undefined,
-  userOrHints?: { doctor_id?: string | null; doctor_profile_complete?: boolean | null } | null
+  _userOrHints?: { doctor_id?: string | null; doctor_profile_complete?: boolean | null } | null
 ): string {
   const r = normalizeRoles(roles);
   if (r.includes('patient')) return patientHomePath();
   const hasDoc = r.includes('doctor');
   const hasAdm = r.some((x) => x === 'admin' || x === 'super_admin');
-  if (userOrHints && needsStructuredDoctorProfile(userOrHints)) {
-    return '/complete-profile';
-  }
+
   if (hasDoc && hasAdm) {
     const m: AppMode = readStoredAppMode() ?? 'practice';
     return m === 'admin' ? '/admin/dashboard' : doctorHomePath();

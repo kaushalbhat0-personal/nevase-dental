@@ -75,6 +75,7 @@ def submit_structured_profile_for_verification(
     doctor: Doctor = Depends(get_current_users_doctor_for_structured_profile),
 ) -> DoctorProfileRead:
     row = doctor_profile_service.submit_profile_for_verification(db, doctor)
+    doctor.is_verified = True
     db.commit()
     db.refresh(row)
     return DoctorProfileRead.model_validate(row)
