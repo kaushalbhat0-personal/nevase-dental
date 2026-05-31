@@ -1,2 +1,7 @@
 .playwright_e2e.sqlite3
 .pytest_cache/
+node_modules/
+__pycache__/
+*.py[cod]
+.env
+.env.*

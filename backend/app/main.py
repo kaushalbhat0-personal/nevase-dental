@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -40,6 +41,11 @@ async def lifespan(_app: FastAPI):
     """
     logger.info("Application startup: validating database connectivity")
     try:
+        # Run pending migrations before anything else
+        logger.info("Running database migrations...")
+        subprocess.run(["alembic", "upgrade", "head"], check=True)
+        logger.info("Migrations complete")
+
         from app.core.database import engine
 
         with engine.connect() as conn:

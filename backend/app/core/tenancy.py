@@ -33,16 +33,20 @@ def ensure_default_tenant_exists() -> None:
       (which can trigger extra side effects during application boot).
     - Runs inside a transaction so it can be safely called at startup in a process supervisor.
     """
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                "INSERT INTO tenants (id, name, type, is_active) "
-                "VALUES (:id, :name, :type, true) "
-                "ON CONFLICT (id) DO NOTHING"
-            ),
-            {
-                "id": as_db_uuid(str(DEFAULT_TENANT_ID), conn),
-                "name": DEFAULT_TENANT_NAME,
-                "type": TenantType.organization.value,
-            },
-        )
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                text(
+                    "INSERT INTO tenants (id, name, type, is_active) "
+                    "VALUES (:id, :name, :type, true) "
+                    "ON CONFLICT (id) DO NOTHING"
+                ),
+                {
+                    "id": as_db_uuid(str(DEFAULT_TENANT_ID), conn),
+                    "name": DEFAULT_TENANT_NAME,
+                    "type": TenantType.organization.value,
+                },
+            )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Could not seed default tenant: {e}")
