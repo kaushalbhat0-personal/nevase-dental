@@ -53,25 +53,34 @@ def ensure_default_tenant_exists() -> None:
             )
 
             # ── Seed default admin user if none exists ──
+            logger.info("Checking if admin user exists...")
             existing_admin = conn.execute(
                 text("SELECT id FROM users WHERE role = 'admin' LIMIT 1")
             ).fetchone()
+            logger.info(f"Existing admin found: {existing_admin is not None}")
 
             if not existing_admin:
-                conn.execute(
-                    text("""
-                        INSERT INTO users (id, email, hashed_password, full_name, role, is_active)
-                        VALUES (:id, :email, :password, :name, :role, true)
-                        ON CONFLICT (email) DO NOTHING
-                    """),
-                    {
-                        "id": str(uuid.uuid4()),
-                        "email": "admin@nevase.com",
-                        "password": hash_password("Admin@123"),
-                        "name": "Clinic Admin",
-                        "role": "admin",
-                    },
-                )
-                logger.info("Default admin user created: admin@nevase.com")
+                logger.info("No admin found, creating default admin...")
+                try:
+                    conn.execute(
+                        text("""
+                            INSERT INTO users (id, email, hashed_password, full_name, role, is_active)
+                            VALUES (:id, :email, :password, :name, :role, true)
+                            ON CONFLICT (email) DO NOTHING
+                        """),
+                        {
+                            "id": str(uuid.uuid4()),
+                            "email": "admin@nevase.com",
+                            "password": hash_password("Admin@123"),
+                            "name": "Clinic Admin",
+                            "role": "admin",
+                        },
+                    )
+                    logger.info("Default admin user created: admin@nevase.com")
+                except Exception as inner:
+                    logger.error(f"Failed to insert admin user: {inner}")
+                    raise
+            else:
+                logger.info(f"Admin already exists: id={existing_admin[0]}")
     except Exception as e:
         logger.warning(f"Could not seed default tenant: {e}")
