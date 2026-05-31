@@ -112,8 +112,9 @@ def apply_patient_scope(
         Appointment.tenant_id == tenant_id,
         Appointment.is_deleted == False,  # noqa: E712
     )
+    belongs_to_tenant = Patient.tenant_id == tenant_id
     if user.role in (UserRole.admin, UserRole.staff, UserRole.super_admin):
-        return stmt.where(has_appt_in_tenant)
+        return stmt.where(has_appt_in_tenant | belongs_to_tenant)
     if user.role == UserRole.doctor and user.is_owner:
-        return stmt.where(has_appt_in_tenant)
+        return stmt.where(has_appt_in_tenant | belongs_to_tenant)
     return stmt.where(false())

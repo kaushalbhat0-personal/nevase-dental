@@ -251,7 +251,7 @@ export const WORKSPACE_REGISTRY: Record<WorkspaceSlug, WorkspaceConfig> = {
           { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
           { path: '/patients', label: 'Patients', icon: Users },
           { path: '/appointments', label: 'Appointments', icon: Calendar },
-          { path: '/doctors', label: 'Doctors', icon: Stethoscope },
+          { path: '/admin/doctors', label: 'Doctors', icon: Stethoscope },
           { path: '/billing', label: 'Billing', icon: Receipt },
           { path: '/admin/inventory', label: 'Inventory', icon: Package },
         ],

@@ -8,6 +8,7 @@ import { usePatients } from '../hooks';
 import { createPatientHandler } from '../handlers';
 import { patientsApi, type PatientAutoCredentials } from '../services';
 import { EMPTY_PATIENT } from '../constants';
+import type { Patient } from '../types';
 import { formatPatientName, formatPatientDobOrAge, formatDateSafe } from '../utils';
 import { useAuth } from '../hooks/useAuth';
 import { useAppMode } from '../contexts/AppModeContext';
@@ -43,6 +44,9 @@ export function Patients() {
   // Auto-credentials modal
   const [credentials, setCredentials] = useState<PatientAutoCredentials | null>(null);
   const [credentialsOpen, setCredentialsOpen] = useState(false);
+
+  // Local cache: prepend newly created patients so they appear immediately
+  const [newlyCreated, setNewlyCreated] = useState<Patient | null>(null);
 
   // Scroll to form when shown via Quick Actions
   useEffect(() => {
@@ -104,6 +108,8 @@ export function Patients() {
         icon: '👤',
       });
 
+      setNewlyCreated(result);
+
       if (result.auto_credentials) {
         setCredentials(result.auto_credentials);
         setCredentialsOpen(true);
@@ -138,7 +144,17 @@ export function Patients() {
 
   // Safe rendering guards - only show empty after loading completes
   const safePatients = Array.isArray(patients) ? patients : [];
-  const isEmpty = !loading && safePatients.length === 0;
+  const displayPatients = newlyCreated
+    ? [newlyCreated, ...safePatients.filter((p) => p.id !== newlyCreated.id)]
+    : safePatients;
+  const isEmpty = !loading && displayPatients.length === 0 && !newlyCreated;
+
+  // Once the API returns the newly created patient, stop prepending from local state
+  useEffect(() => {
+    if (newlyCreated && safePatients.some((p) => p.id === newlyCreated.id)) {
+      setNewlyCreated(null);
+    }
+  }, [newlyCreated, safePatients]);
 
   return (
     <div className="page-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -258,7 +274,7 @@ export function Patients() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {safePatients.map((patient, index) => (
+                  {displayPatients.map((patient, index) => (
                     <TableRow key={patient?.id != null ? String(patient.id) : `patient-row-${index}`}>
                       <TableCell>
                         <div className="flex flex-col gap-1.5">

@@ -115,7 +115,7 @@ def create_patient(
     patient_data = patient_in.model_dump()
     patient_data.pop("created_by", None)
     patient_data["created_by"] = current_user.id
-    patient_data["tenant_id"] = None
+    patient_data["tenant_id"] = audit_tenant
     patient = crud_patient.create_patient(db, patient_data)
     log_audit_mutation(
         "create",
