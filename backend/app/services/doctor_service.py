@@ -196,6 +196,8 @@ def create_hospital_doctor_with_login(
                 },
             )
 
+        new_user.tenant_id = tenant_id
+
         crud_tenant.create_user_tenant_tx(
             db,
             user_id=new_user.id,
