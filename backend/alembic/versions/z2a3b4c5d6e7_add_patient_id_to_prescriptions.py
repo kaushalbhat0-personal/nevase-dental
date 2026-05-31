@@ -19,46 +19,68 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Add patient_id column to prescriptions.
-    # Backfill from associated appointment records (appointment.patient_id).
-    op.add_column(
-        'prescriptions',
-        sa.Column('patient_id', sa.UUID(), nullable=True),
-    )
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
 
-    # Backfill patient_id from appointment (with a temporary INNER JOIN approach).
-    # Using raw SQL for maximum clarity in idempotent behavior.
-    op.execute("""
-        UPDATE prescriptions
-        SET patient_id = appointments.patient_id
-        FROM appointments
-        WHERE prescriptions.appointment_id = appointments.id
-        AND prescriptions.patient_id IS NULL;
-    """)
+    # Add patient_id column if it doesn't already exist (0fe071b8e03e may have
+    # already created it as part of the prescriptions table).
+    columns = [col['name'] for col in inspector.get_columns('prescriptions')]
+    if 'patient_id' not in columns:
+        op.add_column(
+            'prescriptions',
+            sa.Column('patient_id', sa.UUID(), nullable=True),
+        )
 
-    # Make patient_id NOT NULL after backfill.
-    op.alter_column(
-        'prescriptions',
-        'patient_id',
-        nullable=False,
-        existing_type=sa.UUID(),
-    )
+        # Backfill patient_id from appointment (with a temporary INNER JOIN approach).
+        # Using raw SQL for maximum clarity in idempotent behavior.
+        op.execute("""
+            UPDATE prescriptions
+            SET patient_id = appointments.patient_id
+            FROM appointments
+            WHERE prescriptions.appointment_id = appointments.id
+            AND prescriptions.patient_id IS NULL;
+        """)
 
-    # Add foreign key constraint (RESTRICT to prevent accidental cascade).
-    op.create_foreign_key(
-        'fk_prescriptions_patient_id',
-        'prescriptions',
-        'patients',
-        ['patient_id'],
-        ['id'],
-        ondelete='RESTRICT',
-    )
+        # Make patient_id NOT NULL after backfill.
+        op.alter_column(
+            'prescriptions',
+            'patient_id',
+            nullable=False,
+            existing_type=sa.UUID(),
+        )
 
-    # Add index for efficient patient-scoped queries.
-    op.create_index('ix_prescriptions_patient', 'prescriptions', ['patient_id'], unique=False)
+        # Add foreign key constraint (RESTRICT to prevent accidental cascade).
+        op.create_foreign_key(
+            'fk_prescriptions_patient_id',
+            'prescriptions',
+            'patients',
+            ['patient_id'],
+            ['id'],
+            ondelete='RESTRICT',
+        )
+
+    # Create index only if it doesn't already exist (0fe071b8e03e may have
+    # already created it).
+    indexes = [idx['name'] for idx in inspector.get_indexes('prescriptions')]
+    if 'ix_prescriptions_patient' not in indexes:
+        op.create_index('ix_prescriptions_patient', 'prescriptions', ['patient_id'], unique=False)
 
 
 def downgrade() -> None:
-    op.drop_index('ix_prescriptions_patient', table_name='prescriptions')
-    op.drop_constraint('fk_prescriptions_patient_id', 'prescriptions', type_='foreignkey')
-    op.drop_column('prescriptions', 'patient_id')
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+
+    indexes = [idx['name'] for idx in inspector.get_indexes('prescriptions')]
+    if 'ix_prescriptions_patient' in indexes:
+        op.drop_index('ix_prescriptions_patient', table_name='prescriptions')
+
+    # Only drop constraint if it exists and column still exists (don't touch the
+    # inline FK from the original CREATE TABLE if any).
+    columns = [col['name'] for col in inspector.get_columns('prescriptions')]
+    if 'patient_id' in columns:
+        try:
+            op.drop_constraint('fk_prescriptions_patient_id', 'prescriptions', type_='foreignkey')
+        except Exception:
+            pass
+
+        op.drop_column('prescriptions', 'patient_id')
