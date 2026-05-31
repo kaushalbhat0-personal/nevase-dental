@@ -47,7 +47,7 @@ const Patients = lazy(() => import('./pages/Patients').then(m => ({ default: m.P
 const Doctors = lazy(() => import('./pages/Doctors').then(m => ({ default: m.Doctors })));
 const Appointments = lazy(() => import('./pages/Appointments').then(m => ({ default: m.Appointments })));
 const Billing = lazy(() => import('./pages/Billing').then(m => ({ default: m.Billing })));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminInventoryPage = lazy(() => import('./pages/InventoryPage').then(m => ({ default: m.AdminInventoryPage })));
 const AdminBrandingPage = lazy(() => import('./pages/AdminBrandingPage').then(m => ({ default: m.default })));
 const AdminCommunicationsPage = lazy(() => import('./pages/AdminCommunicationsPage').then(m => ({ default: m.default })));

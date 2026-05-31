@@ -21,9 +21,6 @@ export default defineConfig({
             if (id.includes('framer-motion')) {
               return 'vendor-animation';
             }
-            if (id.includes('recharts') || id.includes('chart')) {
-              return 'vendor-charts';
-            }
             if (id.includes('lucide-react')) {
               return 'vendor-icons';
             }
