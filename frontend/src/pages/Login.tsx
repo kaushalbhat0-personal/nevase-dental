@@ -7,6 +7,7 @@ import type { LoginCredentials, LoginResult } from '../types';
 import { postLoginHomePath } from '../utils/roles';
 import { loginSchema, type LoginFormData } from '../validation';
 import { Button, Card, Input } from '../components/common';
+import { ArrowLeft } from 'lucide-react';
 
 interface LoginPageProps {
   onLogin: (credentials: LoginCredentials) => Promise<LoginResult>;
@@ -27,10 +28,7 @@ export function Login({ onLogin }: LoginPageProps) {
   const onSubmit = async (data: LoginFormData) => {
     setApiError('');
 
-    // Prevent double submission
-    if (isSubmitting) {
-      return;
-    }
+    if (isSubmitting) return;
 
     try {
       const result = await onLogin({ email: data.email, password: data.password });
@@ -64,12 +62,14 @@ export function Login({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-white p-4">
       <Card padding="lg" className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🏥</div>
-          <h1 className="text-2xl font-bold text-text-primary mb-2">Nevase Multispecialist Dental Clinic</h1>
-          <p className="text-text-secondary">Practice Management System</p>
+          <div className="w-16 h-16 rounded-2xl bg-[#0EA5E9] flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#0EA5E9]/20">
+            <span className="text-white font-bold text-3xl">N</span>
+          </div>
+          <h1 className="text-xl font-bold text-[#0F172A] mb-1">Nevase's Multispeciality Dental Clinic</h1>
+          <p className="text-sm text-[#1E293B]/60">Staff & Patient Portal</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -97,8 +97,8 @@ export function Login({ onLogin }: LoginPageProps) {
             {...register('password')}
           />
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             variant="primary"
             size="lg"
             isLoading={isSubmitting}
@@ -115,10 +115,15 @@ export function Login({ onLogin }: LoginPageProps) {
               Create an account
             </Link>
           </p>
-          <p className="text-sm text-text-muted mb-2">Demo credentials:</p>
-          <code className="text-xs bg-surface-hover px-3 py-1.5 rounded-md text-text-secondary">
-            admin@hospital.com / admin123
-          </code>
+          <div className="flex items-center justify-center gap-2 text-xs text-text-muted">
+            <span className="bg-surface-hover px-2.5 py-1 rounded-md">admin@hospital.com</span>
+            <span className="text-text-muted/50">/</span>
+            <span className="bg-surface-hover px-2.5 py-1 rounded-md">admin123</span>
+          </div>
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline mt-2">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Website
+          </Link>
         </div>
       </Card>
     </div>

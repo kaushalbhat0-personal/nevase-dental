@@ -48,3 +48,16 @@ class PatientMyDoctorRead(BaseModel):
     name: str
     specialization: str
     tenant_id: UUID
+
+
+class PatientAutoCredentials(BaseModel):
+    username: str
+    password: str
+    message: str
+    whatsapp_link: str
+
+
+class PatientCreateResponse(PatientRead):
+    """Patient creation response with optional auto-generated credentials."""
+
+    auto_credentials: PatientAutoCredentials | None = None

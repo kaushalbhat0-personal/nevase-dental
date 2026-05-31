@@ -17,6 +17,7 @@ import { AdminRoute } from './components/layout/AdminRoute';
 import { StaffRoute } from './components/layout/StaffRoute';
 import { PatientRoute } from './components/layout/PatientRoute';
 import { PatientLayout } from './components/layout/PatientLayout';
+import { PatientPortalLayout } from './components/layout/PatientPortalLayout';
 import { DoctorLayout } from './components/layout/DoctorLayout';
 import { DoctorRoute } from './components/layout/DoctorRoute';
 import { AnimatedPage } from './animations';
@@ -65,7 +66,7 @@ const PatientInventory = lazy(() => import('./pages/doctor/PatientInventory').th
 const ClinicOnboardingPage = lazy(() => import('./pages/doctor/ClinicOnboardingPage').then(m => ({ default: m.ClinicOnboardingPage })));
 const CompleteProfilePage = lazy(() => import('./pages/doctor/CompleteProfilePage').then(m => ({ default: m.CompleteProfilePage })));
 
-// Patient pages
+// Patient pages (existing)
 const PatientHome = lazy(() => import('./pages/patient/PatientHome').then(m => ({ default: m.PatientHome })));
 const PatientCareHub = lazy(() => import('./pages/patient/PatientCareHub').then(m => ({ default: m.PatientCareHub })));
 const PatientDiscover = lazy(() => import('./pages/patient/PatientDiscover').then(m => ({ default: m.PatientDiscover })));
@@ -84,6 +85,11 @@ const PatientDocuments = lazy(() => import('./pages/patient/PatientDocuments').t
 const PatientMedicines = lazy(() => import('./pages/patient/PatientMedicines').then(m => ({ default: m.PatientMedicines })));
 const PatientFamilyHub = lazy(() => import('./pages/patient/PatientFamilyHub').then(m => ({ default: m.default })));
 const PatientEmergencyProfile = lazy(() => import('./pages/patient/PatientEmergencyProfile').then(m => ({ default: m.default })));
+
+// Patient portal pages (new)
+const PatientDashboard = lazy(() => import('./pages/patient/PatientDashboard'));
+const PatientPrescriptions = lazy(() => import('./pages/patient/PatientPrescriptions'));
+const PatientMedications = lazy(() => import('./pages/patient/PatientMedications'));
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -170,14 +176,21 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Public website pages (no auth required) */}
+        {/* Public website pages (no auth required) - root level */}
         <Route element={<Suspense fallback={<PageFallback />}><PublicLayout /></Suspense>}>
-          <Route path="/clinic" element={<PublicHome />} />
-          <Route path="/clinic/services" element={<PublicServices />} />
-          <Route path="/clinic/doctors" element={<PublicDoctors />} />
-          <Route path="/clinic/contact" element={<PublicContact />} />
-          <Route path="/clinic/book-appointment" element={<PublicBookAppointment />} />
+          <Route path="/" element={<PublicHome />} />
+          <Route path="/services" element={<PublicServices />} />
+          <Route path="/doctors" element={<PublicDoctors />} />
+          <Route path="/contact" element={<PublicContact />} />
+          <Route path="/book" element={<PublicBookAppointment />} />
         </Route>
+
+        {/* Backward-compatible redirects from /clinic/* to root */}
+        <Route path="/clinic" element={<Navigate to="/" replace />} />
+        <Route path="/clinic/services" element={<Navigate to="/services" replace />} />
+        <Route path="/clinic/doctors" element={<Navigate to="/doctors" replace />} />
+        <Route path="/clinic/contact" element={<Navigate to="/contact" replace />} />
+        <Route path="/clinic/book-appointment" element={<Navigate to="/book" replace />} />
 
         <Route
           path="/login"
@@ -593,6 +606,53 @@ function AnimatedRoutes() {
           />
         </Route>
 
+        {/* Patient portal routes (sidebar layout) */}
+        <Route
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <PatientRoute user={user}>
+                <PatientPortalLayout />
+              </PatientRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/patient/dashboard" element={
+            <AnimatedPage>
+              <Suspense fallback={<PageFallback />}>
+                <PatientDashboard />
+              </Suspense>
+            </AnimatedPage>
+          } />
+          <Route path="/patient/appointments" element={
+            <AnimatedPage>
+              <Suspense fallback={<PageFallback />}>
+                <PatientAppointments />
+              </Suspense>
+            </AnimatedPage>
+          } />
+          <Route path="/patient/bills" element={
+            <AnimatedPage>
+              <Suspense fallback={<PageFallback />}>
+                <PatientBills />
+              </Suspense>
+            </AnimatedPage>
+          } />
+          <Route path="/patient/prescriptions" element={
+            <AnimatedPage>
+              <Suspense fallback={<PageFallback />}>
+                <PatientPrescriptions />
+              </Suspense>
+            </AnimatedPage>
+          } />
+          <Route path="/patient/medications" element={
+            <AnimatedPage>
+              <Suspense fallback={<PageFallback />}>
+                <PatientMedications />
+              </Suspense>
+            </AnimatedPage>
+          } />
+        </Route>
+
         <Route
           path="/patient"
           element={
@@ -802,19 +862,6 @@ function AnimatedRoutes() {
 
 
 
-        <Route
-          path="/"
-          element={
-            isLoading ? (
-              <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
-                <div className="spinner" />
-                <p className="text-sm text-muted-foreground">Loading…</p>
-              </div>
-            ) : (
-              <Navigate to={isAuthenticated ? loginRedirect : '/login'} replace />
-            )
-          }
-        />
       </Routes>
     </AnimatePresence>
   );

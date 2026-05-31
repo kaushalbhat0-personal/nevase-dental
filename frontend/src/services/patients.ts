@@ -9,6 +9,17 @@ export interface CreatePatientData {
   phone: string;
 }
 
+export interface PatientAutoCredentials {
+  username: string;
+  password: string;
+  message: string;
+  whatsapp_link: string;
+}
+
+export interface PatientCreateResponse extends Patient {
+  auto_credentials?: PatientAutoCredentials;
+}
+
 export type PatientUpdatePayload = {
   name?: string;
   age?: number;
@@ -21,11 +32,9 @@ export const patientsApi = {
   getAll: async (params?: { search?: string; skip?: number; limit?: number }): Promise<Patient[]> => {
     try {
       const response = await api.get('/patients', { params: { skip: 0, limit: 100, ...params } });
-      // Debug log in development
       if (import.meta.env.DEV) {
         console.log('[patientsApi.getAll] Response:', response.data);
       }
-      // Safe array extraction - handles { data: [...] } or direct array
       return safeArray<Patient>(response.data);
     } catch (error) {
       console.error('[patientsApi.getAll] Error:', error);
@@ -41,7 +50,7 @@ export const patientsApi = {
       throw error;
     }
   },
-  create: async (patient: CreatePatientData): Promise<Patient> => {
+  create: async (patient: CreatePatientData): Promise<PatientCreateResponse> => {
     try {
       const response = await api.post('/patients', patient);
       return response.data;

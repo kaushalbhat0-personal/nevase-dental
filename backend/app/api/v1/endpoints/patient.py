@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Response, status
@@ -14,9 +17,13 @@ from app.api.deps import (
 )
 from app.core.data_scope import ResolvedDataScope, restrict_doctor_id_for_detail
 from app.core.database import get_db
-from app.models.user import User
+from app.core.security import hash_password
+from app.crud import crud_patient, crud_user
+from app.models.user import User, UserRole
 from app.schemas.patient import (
+    PatientAutoCredentials,
     PatientCreate,
+    PatientCreateResponse,
     PatientListRead,
     PatientMyDoctorRead,
     PatientRead,
@@ -31,6 +38,11 @@ router = APIRouter(
 )
 
 
+def _generate_password(length: int = 8) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
 @router.get("/me/doctors", response_model=list[PatientMyDoctorRead])
 def read_my_doctors(
     db: Session = Depends(get_db),
@@ -39,16 +51,53 @@ def read_my_doctors(
     return patient_service.list_my_doctors(db, current_user)
 
 
-@router.post("", response_model=PatientRead, status_code=201)
+@router.post("", response_model=PatientCreateResponse, status_code=201)
 def create_patient(
     payload: PatientCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
     tenant_id: UUID | None = Depends(get_optional_scoped_tenant_id_active),
     _verified: None = Depends(require_doctor_verification_approved),
-) -> PatientRead:
-    return patient_service.create_patient(
+) -> PatientCreateResponse:
+    patient = patient_service.create_patient(
         db, payload, current_user, tenant_id
+    )
+
+    password = _generate_password()
+    hashed = hash_password(password)
+    username = payload.phone
+
+    user_data = crud_user.create_user_tx(
+        db,
+        {
+            "email": username,
+            "hashed_password": hashed,
+            "role": UserRole.patient,
+            "force_password_reset": True,
+        },
+    )
+
+    crud_patient.update_patient(
+        db, patient, {"user_id": user_data.id}
+    )
+    db.refresh(patient)
+
+    message = f"Welcome to Nevase Dental! Your patient portal login: Username: {username} Password: {password}"
+    whatsapp_link = (
+        f"https://wa.me/91{payload.phone}?text="
+        f"Welcome%20to%20Nevase%20Dental!%20Your%20patient%20portal%20login:%20"
+        f"Username:%20{username}%20Password:%20{password}%20"
+        f"Login%20at:%20https://nevase-dental.vercel.app/login"
+    )
+
+    return PatientCreateResponse(
+        **PatientRead.model_validate(patient).model_dump(),
+        auto_credentials=PatientAutoCredentials(
+            username=username,
+            password=password,
+            message=message,
+            whatsapp_link=whatsapp_link,
+        ),
     )
 
 

@@ -117,7 +117,7 @@ export function staffHomePath(): string {
 }
 
 export function patientHomePath(): string {
-  return '/patient/home';
+  return '/patient/dashboard';
 }
 
 export function doctorHomePath(): string {

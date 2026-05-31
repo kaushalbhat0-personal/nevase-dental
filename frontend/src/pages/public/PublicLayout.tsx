@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 const NAV_LINKS = [
-  { label: 'Home', href: '/clinic' },
-  { label: 'Services', href: '/clinic/services' },
-  { label: 'Doctors', href: '/clinic/doctors' },
-  { label: 'Contact', href: '/clinic/contact' },
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: 'Doctors', href: '/doctors' },
+  { label: 'About', href: '/#about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 const WHATSAPP_URL = 'https://wa.me/918805606018?text=Hi%2C%20I%20would%20like%20to%20book%20an%20appointment';
@@ -50,7 +51,7 @@ export default function PublicLayout() {
   }, []);
 
   const isActive = (href: string) => {
-    if (href === '/clinic') return location.pathname === '/clinic';
+    if (href === '/') return location.pathname === '/';
     return location.pathname.startsWith(href);
   };
 
@@ -60,7 +61,7 @@ export default function PublicLayout() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-white'}`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/clinic" className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
               <div className="w-9 h-9 rounded-lg bg-[#0EA5E9] flex items-center justify-center">
                 <span className="text-white font-bold text-lg">N</span>
               </div>
@@ -79,7 +80,13 @@ export default function PublicLayout() {
               ))}
             </div>
 
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                to="/login"
+                className="px-4 py-2.5 rounded-lg text-sm font-medium text-[#1E293B] hover:text-[#0EA5E9] hover:bg-gray-50 transition-colors"
+              >
+                Patient Login
+              </Link>
               <a
                 href={WHATSAPP_URL}
                 target="_blank"
@@ -115,6 +122,12 @@ export default function PublicLayout() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                to="/login"
+                className="block px-3 py-2.5 rounded-md text-sm font-medium text-[#1E293B] hover:text-[#0EA5E9] hover:bg-gray-50"
+              >
+                Patient Login
+              </Link>
               <a
                 href={WHATSAPP_URL}
                 target="_blank"
@@ -177,8 +190,11 @@ export default function PublicLayout() {
                     {link.label}
                   </Link>
                 ))}
-                <Link to="/clinic/book-appointment" className="block text-sm text-gray-300 hover:text-white transition-colors">
+                <Link to="/book" className="block text-sm text-gray-300 hover:text-white transition-colors">
                   Book Appointment
+                </Link>
+                <Link to="/login" className="block text-sm text-gray-300 hover:text-white transition-colors">
+                  Patient Portal Login
                 </Link>
               </div>
             </div>

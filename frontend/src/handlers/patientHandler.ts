@@ -3,7 +3,7 @@
  * Business logic for patient operations
  */
 
-import { patientsApi } from '../services';
+import { patientsApi, type PatientCreateResponse } from '../services';
 import { PATIENT_DEFAULT_PARAMS } from '../constants';
 import { safeArray } from '../utils';
 import type { Patient } from '../types';
@@ -22,10 +22,9 @@ export const fetchPatientsHandler = async (search?: string): Promise<Patient[]> 
 };
 
 /**
- * Create a new patient
+ * Create a new patient - returns response with optional auto-credentials
  */
-export const createPatientHandler = async (data: PatientFormData): Promise<void> => {
-  // Ensure proper data types and format for API
+export const createPatientHandler = async (data: PatientFormData): Promise<PatientCreateResponse> => {
   const payload = {
     name: data.name,
     age: Number(data.age),
@@ -37,5 +36,5 @@ export const createPatientHandler = async (data: PatientFormData): Promise<void>
     console.log('[createPatientHandler] Payload:', payload);
   }
 
-  await patientsApi.create(payload);
+  return patientsApi.create(payload);
 }

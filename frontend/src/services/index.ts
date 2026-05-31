@@ -2,7 +2,7 @@
 export { api, retryRequest, isNetworkError, isColdStartError } from './api';
 export { authApi, formatLoginError } from './auth';
 export { doctorProfileApi, type DoctorStructuredProfileInput } from './doctorProfile';
-export { patientsApi, type CreatePatientData, type PatientUpdatePayload } from './patients';
+export { patientsApi, type CreatePatientData, type PatientUpdatePayload, type PatientCreateResponse, type PatientAutoCredentials } from './patients';
 export { appointmentsApi, encountersApi, type CreateAppointmentData } from './appointments';
 export { billingApi, BillingApiError, type CreateBillData } from './billing';
 export {
