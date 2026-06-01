@@ -81,7 +81,7 @@ export default function PatientPrescriptions() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleViewPrescription(a.id)}
+                    onClick={() => handleViewPrescription(String(a.id))}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[#0EA5E9] bg-[#0EA5E9]/10 hover:bg-[#0EA5E9]/20 transition-colors"
                   >
                     <Eye className="w-4 h-4" />
