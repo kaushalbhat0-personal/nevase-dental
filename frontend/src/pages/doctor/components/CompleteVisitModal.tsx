@@ -74,6 +74,16 @@ type PrescriptionRow = {
   instructions: string;
 };
 
+function toPositiveFloat(value: string): number | null {
+  const n = parseFloat(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function toPositiveInt(value: string): number | null {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export const CompleteVisitModal = forwardRef<HTMLDivElement, CompleteVisitModalProps>(
   function CompleteVisitModalInner({
     appointment,
@@ -220,15 +230,15 @@ export const CompleteVisitModal = forwardRef<HTMLDivElement, CompleteVisitModalP
     // Normalize vitals: only send if at least one field has a value
     const normalizedVitals = Object.values(vitals).some((v) => v !== '' && v !== null)
       ? {
-          temperature: vitals.temperature ? parseFloat(vitals.temperature) : null,
-          bp_systolic: vitals.bp_systolic ? parseInt(vitals.bp_systolic, 10) : null,
-          bp_diastolic: vitals.bp_diastolic ? parseInt(vitals.bp_diastolic, 10) : null,
-          pulse: vitals.pulse ? parseInt(vitals.pulse, 10) : null,
-          respiratory_rate: vitals.respiratory_rate ? parseInt(vitals.respiratory_rate, 10) : null,
-          spo2: vitals.spo2 ? parseInt(vitals.spo2, 10) : null,
-          weight: vitals.weight ? parseFloat(vitals.weight) : null,
-          height: vitals.height ? parseFloat(vitals.height) : null,
-          bmi: vitals.bmi ? parseFloat(vitals.bmi) : null,
+          temperature: toPositiveFloat(vitals.temperature),
+          bp_systolic: toPositiveInt(vitals.bp_systolic),
+          bp_diastolic: toPositiveInt(vitals.bp_diastolic),
+          pulse: toPositiveInt(vitals.pulse),
+          respiratory_rate: toPositiveInt(vitals.respiratory_rate),
+          spo2: toPositiveInt(vitals.spo2),
+          weight: toPositiveFloat(vitals.weight),
+          height: toPositiveFloat(vitals.height),
+          bmi: toPositiveFloat(vitals.bmi),
           notes: vitals.notes.trim() || null,
         }
       : null;
