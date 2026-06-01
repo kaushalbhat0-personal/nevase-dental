@@ -15,12 +15,11 @@ const isValidDate = (dateString: string) => {
   return date >= minDate && date <= maxDate && !isNaN(date.getTime());
 };
 
-// Login form validation
+// Login form validation (accepts email or phone — backend stores phone as User.email for patients)
 export const loginSchema = z.object({
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .min(1, 'Email or phone is required'),
   password: z
     .string()
     .min(1, 'Password is required'),
@@ -95,6 +94,7 @@ export const doctorSchema = z.object({
 });
 
 const signupLoginSchema = loginSchema.extend({
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 

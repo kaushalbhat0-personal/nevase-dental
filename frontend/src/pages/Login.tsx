@@ -80,9 +80,9 @@ export function Login({ onLogin }: LoginPageProps) {
           )}
 
           <Input
-            label="Email"
-            type="email"
-            placeholder="admin@hospital.com"
+            label="Email or phone"
+            type="text"
+            placeholder="admin@hospital.com or 9876543210"
             error={errors.email?.message}
             disabled={isSubmitting}
             {...register('email')}
