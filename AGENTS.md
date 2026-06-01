@@ -43,3 +43,23 @@
    - Sidebar: white background
 
 8. **AdminDashboard cards** — colored left borders per stat, removed redundant outer padding
+
+## Session 3 — June 1, 2026
+
+**Goal:** Replace Discover tab with Medicines in patient navigation; add View Prescription button.
+
+### Changes
+
+**Frontend — `frontend/src/`**
+
+1. **Discover → Medicines nav swap** (`components/layout/PatientBottomNav.tsx`)
+   - Replaced tab 4: `Search`→`Pill` icon, `Discover`→`Medicines` label, `/patient/discover`→`/patient/medications` route
+   - Removed discover detail-page hiding logic; kept encounter detail hiding
+   - Discover page + routes kept intact; booking CTAs still link to `/patient/discover`
+
+2. **View Prescription modal** (`pages/patient/PatientPrescriptions.tsx`)
+   - Added `[Eye] View Prescription` button alongside existing `[Download] Download PDF`
+   - On click: fetches encounter via `GET /encounters/{appointmentId}` (existing endpoint)
+   - Modal shows: doctor, date, prescription items (medicine name, dosage, frequency, duration, instructions)
+   - Mobile responsive: bottom-sheet on mobile, centered dialog on desktop
+   - No APIs, backend, or routes modified
