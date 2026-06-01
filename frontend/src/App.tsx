@@ -17,7 +17,7 @@ import { AdminRoute } from './components/layout/AdminRoute';
 import { StaffRoute } from './components/layout/StaffRoute';
 import { PatientRoute } from './components/layout/PatientRoute';
 import { PatientLayout } from './components/layout/PatientLayout';
-import { PatientPortalLayout } from './components/layout/PatientPortalLayout';
+
 import { DoctorLayout } from './components/layout/DoctorLayout';
 import { DoctorRoute } from './components/layout/DoctorRoute';
 import { AnimatedPage } from './animations';
@@ -85,7 +85,6 @@ const PatientFamilyHub = lazy(() => import('./pages/patient/PatientFamilyHub').t
 const PatientEmergencyProfile = lazy(() => import('./pages/patient/PatientEmergencyProfile').then(m => ({ default: m.default })));
 
 // Patient portal pages (new)
-const PatientDashboard = lazy(() => import('./pages/patient/PatientDashboard'));
 const PatientPrescriptions = lazy(() => import('./pages/patient/PatientPrescriptions'));
 const PatientMedications = lazy(() => import('./pages/patient/PatientMedications'));
 
@@ -699,53 +698,6 @@ function AnimatedRoutes() {
           />
         </Route>
 
-        {/* Patient portal routes (sidebar layout) */}
-        <Route
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-              <PatientRoute user={user}>
-                <PatientPortalLayout />
-              </PatientRoute>
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/patient/dashboard" element={
-            <AnimatedPage>
-              <Suspense fallback={<PageFallback />}>
-                <PatientDashboard />
-              </Suspense>
-            </AnimatedPage>
-          } />
-          <Route path="/patient/appointments" element={
-            <AnimatedPage>
-              <Suspense fallback={<PageFallback />}>
-                <PatientAppointments />
-              </Suspense>
-            </AnimatedPage>
-          } />
-          <Route path="/patient/bills" element={
-            <AnimatedPage>
-              <Suspense fallback={<PageFallback />}>
-                <PatientBills />
-              </Suspense>
-            </AnimatedPage>
-          } />
-          <Route path="/patient/prescriptions" element={
-            <AnimatedPage>
-              <Suspense fallback={<PageFallback />}>
-                <PatientPrescriptions />
-              </Suspense>
-            </AnimatedPage>
-          } />
-          <Route path="/patient/medications" element={
-            <AnimatedPage>
-              <Suspense fallback={<PageFallback />}>
-                <PatientMedications />
-              </Suspense>
-            </AnimatedPage>
-          } />
-        </Route>
-
         <Route
           path="/patient"
           element={
@@ -914,6 +866,54 @@ function AnimatedRoutes() {
             />
           </Route>
 
+          {/* ── APPOINTMENTS ──────────────────────────────────────────────── */}
+          <Route
+            path="appointments"
+            element={
+              <AnimatedPage>
+                <Suspense fallback={<PageFallback />}>
+                  <PatientAppointments />
+                </Suspense>
+              </AnimatedPage>
+            }
+          />
+
+          {/* ── BILLS ──────────────────────────────────────────────────────── */}
+          <Route
+            path="bills"
+            element={
+              <AnimatedPage>
+                <Suspense fallback={<PageFallback />}>
+                  <PatientBills />
+                </Suspense>
+              </AnimatedPage>
+            }
+          />
+
+          {/* ── PRESCRIPTIONS ──────────────────────────────────────────────── */}
+          <Route
+            path="prescriptions"
+            element={
+              <AnimatedPage>
+                <Suspense fallback={<PageFallback />}>
+                  <PatientPrescriptions />
+                </Suspense>
+              </AnimatedPage>
+            }
+          />
+
+          {/* ── MEDICATIONS (legacy) ───────────────────────────────────────── */}
+          <Route
+            path="medications"
+            element={
+              <AnimatedPage>
+                <Suspense fallback={<PageFallback />}>
+                  <PatientMedications />
+                </Suspense>
+              </AnimatedPage>
+            }
+          />
+
           {/* ── TRUST & FAMILY ───────────────────────────────────────────── */}
           <Route
             path="family"
@@ -949,8 +949,7 @@ function AnimatedRoutes() {
           <Route path="doctors/:doctorId" element={<RedirectDoctorDetailByDoctorId />} />
           <Route path="clinic/:tenantId" element={<RedirectClinicDetail />} />
           <Route path="documents" element={<Navigate to="/patient/profile/documents" replace />} />
-          <Route path="bills" element={<Navigate to="/patient/profile/bills" replace />} />
-          <Route path="appointments" element={<Navigate to="/patient/profile/appointments" replace />} />
+          <Route path="dashboard" element={<Navigate to="/patient/home" replace />} />
         </Route>
 
 
