@@ -5,7 +5,7 @@
  * 1. Appointments — View and book appointments
  * 2. Prescriptions — Download prescriptions
  * 3. Messages — Communication center
- * 4. Discover — Doctor/clinic discovery
+ * 4. Medicines — View prescribed medications
  * 5. Profile — Personal account + records
  *
  * Design:
@@ -21,7 +21,7 @@ import {
   Calendar,
   FileText,
   MessageSquare,
-  Search,
+  Pill,
   User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,18 +30,16 @@ const tabs = [
   { to: '/patient/appointments', label: 'Appointments', icon: Calendar },
   { to: '/patient/prescriptions', label: 'Prescriptions', icon: FileText },
   { to: '/patient/messages', label: 'Messages', icon: MessageSquare },
-  { to: '/patient/discover', label: 'Discover', icon: Search },
+  { to: '/patient/medications', label: 'Medicines', icon: Pill },
   { to: '/patient/profile', label: 'Profile', icon: User },
 ] as const;
 
 export function PatientBottomNav() {
   const { pathname } = useLocation();
 
-  // Don't show bottom nav on detail pages within care/discover
+  // Don't show bottom nav on detail pages within care
   const isDetailPage =
-    pathname.includes('/care/encounters/') ||
-    pathname.includes('/discover/doctor/') ||
-    pathname.includes('/discover/clinic/');
+    pathname.includes('/care/encounters/');
 
   if (isDetailPage) return null;
 
@@ -59,7 +57,7 @@ export function PatientBottomNav() {
             (to === '/patient/appointments' && (pathname === '/patient/appointments' || pathname === '/patient/home')) ||
             (to === '/patient/prescriptions' && pathname.startsWith('/patient/prescriptions')) ||
             (to === '/patient/messages' && pathname.startsWith('/patient/messages')) ||
-            (to === '/patient/discover' && pathname.startsWith('/patient/discover/')) ||
+            (to === '/patient/medications' && pathname.startsWith('/patient/medications')) ||
             (to === '/patient/profile' && pathname.startsWith('/patient/profile/'));
 
           return (
