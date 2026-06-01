@@ -1062,14 +1062,14 @@ def _aggregate_prescription_data(
     # Build prescription items from the aggregate
     rx_items = []
     for rx in aggregate.prescriptions:
-        rx_items.append({
-            "medicine_name": rx.medicine_name,
-            "dosage": rx.dosage,
-            "frequency": rx.frequency,
-            "duration": rx.duration,
-            "instructions": rx.instructions,
-            "route": rx.route,
-        })
+        for item in rx.items:
+            rx_items.append({
+                "medicine_name": item.medicine_name,
+                "dosage": item.dosage,
+                "frequency": item.frequency,
+                "duration": item.duration,
+                "instructions": item.instructions,
+            })
 
     return PrescriptionDocumentData(
         appointment_id=appt.id,
