@@ -2,8 +2,8 @@
  * PatientBottomNav — mobile-first sticky bottom navigation.
  *
  * 5 primary tabs:
- * 1. Home — Today's Care Dashboard
- * 2. Care — Longitudinal care workspace
+ * 1. Appointments — View and book appointments
+ * 2. Prescriptions — Download prescriptions
  * 3. Messages — Communication center
  * 4. Discover — Doctor/clinic discovery
  * 5. Profile — Personal account + records
@@ -18,8 +18,8 @@
 
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Home,
-  HeartPulse,
+  Calendar,
+  FileText,
   MessageSquare,
   Search,
   User,
@@ -27,8 +27,8 @@ import {
 import { cn } from '@/lib/utils';
 
 const tabs = [
-  { to: '/patient/home', label: 'Home', icon: Home },
-  { to: '/patient/care', label: 'Care', icon: HeartPulse },
+  { to: '/patient/appointments', label: 'Appointments', icon: Calendar },
+  { to: '/patient/prescriptions', label: 'Prescriptions', icon: FileText },
   { to: '/patient/messages', label: 'Messages', icon: MessageSquare },
   { to: '/patient/discover', label: 'Discover', icon: Search },
   { to: '/patient/profile', label: 'Profile', icon: User },
@@ -56,7 +56,8 @@ export function PatientBottomNav() {
         {tabs.map(({ to, label, icon: Icon }) => {
           const isActive =
             pathname === to ||
-            (to === '/patient/care' && pathname.startsWith('/patient/care/')) ||
+            (to === '/patient/appointments' && (pathname === '/patient/appointments' || pathname === '/patient/home')) ||
+            (to === '/patient/prescriptions' && pathname.startsWith('/patient/prescriptions')) ||
             (to === '/patient/messages' && pathname.startsWith('/patient/messages')) ||
             (to === '/patient/discover' && pathname.startsWith('/patient/discover/')) ||
             (to === '/patient/profile' && pathname.startsWith('/patient/profile/'));

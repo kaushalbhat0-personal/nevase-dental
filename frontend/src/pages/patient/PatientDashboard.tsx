@@ -126,7 +126,7 @@ export default function PatientDashboard() {
 
       {/* Quick Actions */}
       <div className="grid sm:grid-cols-3 gap-4">
-        <Link to="/book" className="flex items-center justify-between bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all group">
+        <Link to="/patient/discover" className="flex items-center justify-between bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all group">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#0EA5E9]/10 flex items-center justify-center">
               <Calendar className="w-5 h-5 text-[#0EA5E9]" />

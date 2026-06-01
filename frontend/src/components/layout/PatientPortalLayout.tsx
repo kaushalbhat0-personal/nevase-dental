@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Receipt, FileText, Pill, LogOut, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Calendar, Receipt, FileText, LogOut, Menu, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +9,6 @@ const navItems = [
   { to: '/patient/appointments', label: 'My Appointments', icon: Calendar },
   { to: '/patient/bills', label: 'My Bills', icon: Receipt },
   { to: '/patient/prescriptions', label: 'Prescriptions', icon: FileText },
-  { to: '/patient/medications', label: 'Medications', icon: Pill },
 ];
 
 export function PatientPortalLayout() {
@@ -124,7 +123,7 @@ export function PatientPortalLayout() {
             </div>
             <div className="flex items-center gap-3">
               <Link
-                to="/book"
+                to="/patient/discover"
                 className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#0EA5E9] hover:bg-[#0284C7] transition-colors"
               >
                 Book Appointment

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FileText, Download, Loader2 } from 'lucide-react';
-import { appointmentsApi } from '../../services';
+import { appointmentsApi, documentsApi } from '../../services';
 import { formatAppointmentDoctorName } from '../../utils';
 import type { Appointment } from '../../types';
 
@@ -69,7 +69,10 @@ export default function PatientPrescriptions() {
                     {a.notes && <p className="text-sm text-[#1E293B]/50 mt-2">{a.notes}</p>}
                   </div>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors">
+                <button
+                  onClick={() => documentsApi.triggerPrescriptionDownload(a.id)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors"
+                >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Download PDF</span>
                 </button>
