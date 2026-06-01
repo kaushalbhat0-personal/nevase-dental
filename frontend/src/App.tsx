@@ -32,8 +32,6 @@ const PublicHome = lazy(() => import('./pages/public/HomePage'));
 const PublicServices = lazy(() => import('./pages/public/ServicesPage'));
 const PublicDoctors = lazy(() => import('./pages/public/DoctorsPage'));
 const PublicContact = lazy(() => import('./pages/public/ContactPage'));
-const PublicBookAppointment = lazy(() => import('./pages/public/BookAppointmentPage'));
-
 // Auth pages
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
 const Signup = lazy(() => import('./pages/Signup').then(m => ({ default: m.Signup })));
@@ -182,7 +180,7 @@ function AnimatedRoutes() {
           <Route path="/services" element={<PublicServices />} />
           <Route path="/doctors" element={<PublicDoctors />} />
           <Route path="/contact" element={<PublicContact />} />
-          <Route path="/book" element={<PublicBookAppointment />} />
+          <Route path="/book" element={<Navigate to="/doctors" replace />} />
         </Route>
 
         {/* Backward-compatible redirects from /clinic/* to root */}
@@ -190,7 +188,7 @@ function AnimatedRoutes() {
         <Route path="/clinic/services" element={<Navigate to="/services" replace />} />
         <Route path="/clinic/doctors" element={<Navigate to="/doctors" replace />} />
         <Route path="/clinic/contact" element={<Navigate to="/contact" replace />} />
-        <Route path="/clinic/book-appointment" element={<Navigate to="/book" replace />} />
+        <Route path="/clinic/book-appointment" element={<Navigate to="/doctors" replace />} />
 
         <Route
           path="/login"
