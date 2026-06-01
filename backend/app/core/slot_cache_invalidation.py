@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from uuid import UUID
 
 from sqlalchemy import event
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 # Session.info key: set[UUID] of doctor_ids whose (doctor,date) slot cache must be purged
 _PENDING = "pending_doctor_slot_cache_invalidations"

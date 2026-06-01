@@ -229,7 +229,8 @@ export function AvailabilityWindowModal({
               value={slotMins}
               onChange={(e) => {
                 const v = e.target.value;
-                setSlotMins(v === '' ? 30 : parseInt(v, 10));
+                const parsed = parseInt(v, 10);
+                setSlotMins(v === '' || Number.isNaN(parsed) ? 30 : parsed);
               }}
               disabled={submitting}
             />
