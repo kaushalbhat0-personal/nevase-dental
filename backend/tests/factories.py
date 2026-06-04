@@ -175,7 +175,6 @@ def create_patient_profile(
     created_by: UUID,
     name: str = "E2E Patient",
 ) -> Patient:
-    _ = tenant_id
     p = Patient(
         name=name,
         age=30,
@@ -183,7 +182,7 @@ def create_patient_profile(
         phone="555-0100",
         user_id=user_id,
         created_by=created_by,
-        tenant_id=None,
+        tenant_id=tenant_id,
     )
     db.add(p)
     db.flush()

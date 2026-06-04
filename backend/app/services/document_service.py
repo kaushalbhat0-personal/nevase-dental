@@ -1180,7 +1180,7 @@ def generate_invoice_pdf(
         appointment_time=aggregate.appointment_time,
         tenant_id=aggregate.tenant_id,
         tenant_name=aggregate.tenant_name,
-        bill_amount=aggregate.total_amount,
+        bill_amount=aggregate.bill_amount,
         consultation_amount=aggregate.consultation_amount,
         inventory_amount=aggregate.inventory_amount,
         inventory_items=aggregate.inventory_items,
@@ -1285,5 +1285,5 @@ def _render_pdf(html: str, fmt: DocumentFormat) -> bytes:
         pdf_bytes = WeasyprintHTML(string=html).write_pdf()
         return pdf_bytes
     except Exception:
-        logger.exception("PDF generation failed")
-        raise
+        logger.warning("weasyprint PDF generation failed, falling back to HTML")
+        return html.encode("utf-8")

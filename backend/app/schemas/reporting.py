@@ -38,10 +38,13 @@ class BillingReportAggregate(BaseModel):
     patient_name: str
     doctor_id: UUID | None = None
     doctor_name: str | None = None
+    doctor_specialization: str | None = None
     appointment_id: UUID | None = None
     appointment_time: datetime | None = None
     tenant_id: UUID
+    tenant_name: str | None = None
     bill_amount: Decimal = Field(..., description="Total bill amount")
+    inventory_items: list[dict] = Field(default_factory=list)
     # TODO: Phase 3B — GST-ready tax line injection
     # gst_amount: Decimal | None = None
     # taxable_amount: Decimal | None = None

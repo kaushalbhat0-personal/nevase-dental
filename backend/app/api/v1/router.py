@@ -21,6 +21,7 @@ from app.api.v1.endpoints import (
     patient,
     patient_communication,
     patient_workspace,
+    public,
     reporting,
     tenant,
     users,
@@ -52,6 +53,7 @@ api_router.include_router(medication_schedule.router)
 api_router.include_router(daily_care.router)
 api_router.include_router(clinic_queue.router)
 api_router.include_router(front_desk.router)
+api_router.include_router(public.router)
 api_router.include_router(clinic_operations.router)
 
 

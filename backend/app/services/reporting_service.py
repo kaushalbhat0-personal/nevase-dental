@@ -300,6 +300,89 @@ def get_billing_report(
     )
 
 
+def get_billing_aggregate(
+    db: Session,
+    bill_id: UUID,
+    current_user: User,
+    tenant_id: UUID | None,
+) -> BillingReportAggregate:
+    """Load a single billing aggregate by bill_id with related appointment/patient/doctor data."""
+    bill = (
+        db.query(Billing)
+        .options(
+            joinedload(Billing.patient),
+            joinedload(Billing.appointment)
+            .joinedload(Appointment.doctor)
+            .joinedload(Doctor.structured_profile),
+        )
+        .filter(Billing.id == bill_id, Billing.is_deleted == False)
+        .first()
+    )
+    if bill is None:
+        raise NotFoundError("Bill not found")
+
+    doctor_name: str | None = None
+    doctor_specialization: str | None = None
+    appointment_time: datetime | None = None
+    tenant_name: str | None = None
+    if bill.appointment is not None:
+        doctor_name = bill.appointment.doctor.name if bill.appointment.doctor else None
+        sp = bill.appointment.doctor.structured_profile if bill.appointment.doctor else None
+        doctor_specialization = sp.specialization if sp else None
+        appointment_time = bill.appointment.appointment_time
+        if bill.appointment.tenant_id:
+            from app.models.tenant import Tenant
+            t = db.get(Tenant, bill.appointment.tenant_id)
+            tenant_name = t.name if t else None
+
+    inv_amounts = _compute_inventory_amounts(db, [bill_id])
+    inv_amt = inv_amounts.get(bill_id, Decimal("0.00"))
+    consult_amt = Decimal(str(bill.amount)) - inv_amt
+    if consult_amt < Decimal("0.00"):
+        consult_amt = Decimal("0.00")
+
+    inventory_items: list[dict] = []
+    if bill.appointment:
+        from app.models.inventory import AppointmentInventoryUsage, InventoryItem
+        usages = (
+            db.query(AppointmentInventoryUsage)
+            .options(joinedload(AppointmentInventoryUsage.item))
+            .filter(AppointmentInventoryUsage.appointment_id == bill.appointment.id)
+            .all()
+        )
+        inventory_items = [
+            {
+                "item_name": u.item.name if u.item else "Unknown",
+                "quantity": u.quantity_used,
+                "unit_price": float(u.unit_price) if u.unit_price else 0,
+                "total_price": float(u.total_price) if u.total_price else 0,
+            }
+            for u in usages
+        ]
+
+    return BillingReportAggregate(
+        bill_id=bill.id,
+        patient_id=bill.patient_id,
+        patient_name=bill.patient.name if bill.patient else "Unknown",
+        doctor_id=bill.appointment.doctor_id if bill.appointment else None,
+        doctor_name=doctor_name,
+        doctor_specialization=doctor_specialization,
+        appointment_id=bill.appointment_id,
+        appointment_time=appointment_time,
+        tenant_id=bill.tenant_id if bill.tenant_id else tenant_id or UUID(int=0),
+        tenant_name=tenant_name,
+        bill_amount=Decimal(str(bill.amount)),
+        consultation_amount=consult_amt,
+        inventory_amount=inv_amt,
+        inventory_items=inventory_items,
+        status=bill.status,
+        paid_at=bill.paid_at,
+        paid_via=bill.payment_method,
+        created_by=bill.created_by,
+        created_at=bill.created_at,
+    )
+
+
 # ── Inventory Ledger ─────────────────────────────────────────────────────────
 
 

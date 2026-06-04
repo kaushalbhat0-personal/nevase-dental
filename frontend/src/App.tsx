@@ -49,6 +49,8 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminInventoryPage = lazy(() => import('./pages/InventoryPage').then(m => ({ default: m.AdminInventoryPage })));
 const AdminBrandingPage = lazy(() => import('./pages/AdminBrandingPage').then(m => ({ default: m.default })));
 const AdminCommunicationsPage = lazy(() => import('./pages/AdminCommunicationsPage').then(m => ({ default: m.default })));
+const AdminTenantPickerPage = lazy(() => import('./pages/AdminTenantPickerPage'));
+const AdminDoctorVerificationsPage = lazy(() => import('./pages/AdminDoctorVerificationsPage'));
 
 // Doctor pages
 const DoctorHome = lazy(() => import('./pages/doctor/DoctorHome').then(m => ({ default: m.DoctorHome })));
@@ -494,6 +496,42 @@ function AnimatedRoutes() {
                     <AnimatedPage>
                       <Suspense fallback={<PageFallback />}>
                         <Billing />
+                      </Suspense>
+                    </AnimatedPage>
+                  </AppLayout>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/tenants"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AnimatedPage>
+                    <Suspense fallback={<PageFallback />}>
+                      <AdminTenantPickerPage />
+                    </Suspense>
+                  </AnimatedPage>
+                </AdminRoute>
+              </StaffRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/doctor-verifications"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <StaffRoute user={user}>
+                <AdminRoute user={user}>
+                  <AppLayout user={user} onLogout={logout}>
+                    <AnimatedPage>
+                      <Suspense fallback={<PageFallback />}>
+                        <AdminDoctorVerificationsPage />
                       </Suspense>
                     </AnimatedPage>
                   </AppLayout>
