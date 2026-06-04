@@ -155,7 +155,13 @@ function AnimatedRoutes() {
 
   const token = localStorage.getItem('token');
   const effectiveRoles = getEffectiveRoles(user, token);
-  const needsPasswordReset = user?.force_password_reset === true;
+  const storedUser = (() => {
+    try {
+      const raw = localStorage.getItem('user');
+      return (raw && raw !== 'undefined') ? JSON.parse(raw) : null;
+    } catch { return null; }
+  })();
+  const needsPasswordReset = (storedUser?.force_password_reset ?? user?.force_password_reset) === true;
   const resolvedWorkspace = resolveUserWorkspace(user, token);
   const loginRedirect = needsPasswordReset
     ? '/reset-password'

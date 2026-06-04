@@ -4,6 +4,7 @@ import json
 import logging
 from decimal import Decimal
 from uuid import UUID
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -45,6 +46,38 @@ from app.schemas.appointment import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Backward-compatible timezone resolution for naive datetimes sent by frontend.
+# The frontend sends wall-clock time in the clinic's local timezone without an explicit
+# UTC offset.  Historically the schema validator assumed UTC, which caused every
+# appointment to fail for clinics east of UTC (e.g. Asia/Kolkata = UTC+5:30).
+#
+# Strategy:
+#   - If the datetime is tz-aware it is already UTC (validated by Pydantic).  Pass through.
+#   - If the datetime is naive, interpret it as the doctor's local timezone, then convert to UTC.
+_DOCTOR_TZ_CACHE: dict[str, ZoneInfo] = {}
+
+
+def _doctor_zoneinfo(doctor_tz_name: str | None) -> ZoneInfo:
+    name = (doctor_tz_name or "UTC").strip() or "UTC"
+    cached = _DOCTOR_TZ_CACHE.get(name)
+    if cached is not None:
+        return cached
+    try:
+        zi = ZoneInfo(name)
+    except (ZoneInfoNotFoundError, OSError):
+        logger.warning("ZoneInfo not found for %r, falling back to UTC", name)
+        zi = ZoneInfo("UTC")
+    _DOCTOR_TZ_CACHE[name] = zi
+    return zi
+
+
+def resolve_appointment_timezone(doctor, dt: datetime) -> datetime:
+    """Return a UTC-normalized datetime, interpreting naive input as doctor local time."""
+    if dt.tzinfo is None:
+        tz = _doctor_zoneinfo(getattr(doctor, "timezone", None) or "UTC")
+        return dt.replace(tzinfo=tz).astimezone(timezone.utc).replace(second=0, microsecond=0)
+    return normalize_appointment_time_utc(dt)
 
 
 def _appointment_audit_ctx(appt: Appointment) -> dict[str, str]:
@@ -271,6 +304,10 @@ def create_appointment(
     )
     doctor = doctor_service.get_doctor_or_404(db, appt_in.doctor_id)
     doctor_service.require_doctor_tenant_for_scheduling(doctor)
+
+    # Resolve naive appointment_time as doctor local time (P0.5 timezone mismatch fix)
+    resolved_time = resolve_appointment_timezone(doctor, appt_in.appointment_time)
+    appt_in = appt_in.model_copy(update={"appointment_time": resolved_time})
 
     doctor_tenant_id = non_nil_tenant_id(doctor.tenant_id)
     if not doctor_tenant_id:
@@ -1225,6 +1262,9 @@ def update_appointment(
     _validate_status_regression(appointment.status, new_status)
 
     appointment_time = update_data.get("appointment_time", appointment.appointment_time)
+    if "appointment_time" in update_data:
+        appointment_time = resolve_appointment_timezone(doctor_for_slot, appointment_time)
+        update_data["appointment_time"] = appointment_time
     if new_status == AppointmentStatus.completed and appointment.status != AppointmentStatus.completed:
         _validate_appointment_can_be_completed_time(appointment_time)
 

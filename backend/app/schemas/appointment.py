@@ -34,7 +34,9 @@ class AppointmentCreate(BaseModel):
     @field_validator("appointment_time")
     @classmethod
     def _normalize_appointment_time(cls, v: datetime) -> datetime:
-        return normalize_appointment_time_utc(v)
+        if v.tzinfo is not None:
+            return normalize_appointment_time_utc(v)
+        return v.replace(second=0, microsecond=0)
 
 
 class AppointmentInventoryUsageRead(BaseModel):
@@ -217,4 +219,6 @@ class AppointmentUpdate(BaseModel):
     def _normalize_appointment_time(cls, v: datetime | None) -> datetime | None:
         if v is None:
             return None
-        return normalize_appointment_time_utc(v)
+        if v.tzinfo is not None:
+            return normalize_appointment_time_utc(v)
+        return v.replace(second=0, microsecond=0)

@@ -15,6 +15,7 @@ from app.models.inventory import (
     InventoryMovementType,
     InventoryReferenceType,
     InventoryStock,
+    Supplier,
 )
 from app.models.appointment import (
     AppointmentVitals,
@@ -76,6 +77,7 @@ __all__ = [
     "InventoryMovement",
     "InventoryMovementType",
     "AppointmentInventoryUsage",
+    "Supplier",
 
     "Tenant",
     "TenantCreationIdempotency",

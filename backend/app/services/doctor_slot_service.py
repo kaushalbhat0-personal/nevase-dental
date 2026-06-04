@@ -400,7 +400,10 @@ def collect_allowed_slot_starts_utc_for_booking(
 ) -> set[datetime]:
     """Slot starts (UTC, tz-aware) that match doctor schedule for the local calendar day of the appointment."""
     doctor_tz = _doctor_zoneinfo(doctor)
-    at = _utc_naive(appointment_time_utc)
+    if appointment_time_utc.tzinfo is None:
+        at = appointment_time_utc.replace(tzinfo=doctor_tz).astimezone(timezone.utc)
+    else:
+        at = appointment_time_utc.astimezone(timezone.utc)
     target_date = at.astimezone(doctor_tz).date()
     slots = _compute_slots(db, doctor, target_date)
     return {_slot_compare_key(s.start) for s in slots}
