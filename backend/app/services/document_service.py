@@ -1114,13 +1114,14 @@ def _aggregate_encounter_summary_data(
     # Build prescription items
     rx_items = []
     for rx in aggregate.prescriptions:
-        rx_items.append({
-            "medicine_name": rx.medicine_name,
-            "dosage": rx.dosage,
-            "frequency": rx.frequency,
-            "duration": rx.duration,
-            "instructions": rx.instructions,
-        })
+        for item in rx.items:
+            rx_items.append({
+                "medicine_name": item.medicine_name,
+                "dosage": item.dosage,
+                "frequency": item.frequency,
+                "duration": item.duration,
+                "instructions": item.instructions,
+            })
 
     return EncounterSummaryDocumentData(
         appointment_id=appt.id,
