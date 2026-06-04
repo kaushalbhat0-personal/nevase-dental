@@ -1284,9 +1284,6 @@ def _render_pdf(html: str, fmt: DocumentFormat) -> bytes:
 
         pdf_bytes = WeasyprintHTML(string=html).write_pdf()
         return pdf_bytes
-    except ImportError:
-        logger.warning("weasyprint not installed; falling back to HTML output")
-        return html.encode("utf-8")
     except Exception:
-        logger.exception("PDF generation failed; falling back to HTML output")
-        return html.encode("utf-8")
+        logger.exception("PDF generation failed")
+        raise

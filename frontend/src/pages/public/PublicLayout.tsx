@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { CLINIC, WHATSAPP_URL } from '../../constants/clinic';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -8,8 +9,6 @@ const NAV_LINKS = [
   { label: 'About', href: '/#about' },
   { label: 'Contact', href: '/contact' },
 ];
-
-const WHATSAPP_URL = 'https://wa.me/918805606018?text=Hi%2C%20I%20would%20like%20to%20book%20an%20appointment';
 
 function WhatsAppIcon() {
   return (
@@ -202,8 +201,8 @@ export default function PublicLayout() {
             <div>
               <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-400 mb-4">Contact</h4>
               <div className="space-y-3 text-sm text-gray-300">
-                <p>Besides Vaibhav Medical Store, Jadhav Nagar, Vadgaon Budruk, Pune 411041</p>
-                <a href="tel:+918805606018" className="block hover:text-white transition-colors">088056 06018</a>
+                <p>{CLINIC.address}</p>
+                <a href={`tel:${CLINIC.phone}`} className="block hover:text-white transition-colors">{CLINIC.phoneDisplay}</a>
                 <a
                   href={WHATSAPP_URL}
                   target="_blank"

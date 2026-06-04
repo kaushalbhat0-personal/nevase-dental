@@ -1,37 +1,9 @@
-import { useState } from 'react';
-import { CheckCircle, Star, ChevronRight, MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
-
-const WHATSAPP_NUMBER = '918805606018';
-
-const services = [
-  { icon: '🦷', title: 'General Dentistry', desc: 'Checkups, cleanings, fillings & preventive care' },
-  { icon: '🔬', title: 'Root Canal Treatment', desc: 'Painless RCT with modern rotary endodontics' },
-  { icon: '✨', title: 'Teeth Whitening', desc: 'Professional bleaching for a brighter smile' },
-  { icon: '🦾', title: 'Dental Implants', desc: 'Permanent titanium tooth replacement' },
-  { icon: '😁', title: 'Orthodontics / Braces', desc: 'Metal, ceramic & invisible aligners' },
-  { icon: '👑', title: 'Crowns & Bridges', desc: 'Restore damaged or missing teeth' },
-  { icon: '🧒', title: 'Pediatric Dentistry', desc: 'Gentle, child-friendly dental care' },
-  { icon: '💎', title: 'Dental Veneers', desc: 'Porcelain laminates for a perfect smile' },
-  { icon: '🩺', title: 'Oral Surgery', desc: 'Extractions, biopsies & minor surgical procedures' },
-  { icon: '🛡️', title: 'Gum Treatment', desc: 'Scaling, root planing & periodontal therapy' },
-  { icon: '🫧', title: 'Scaling & Polishing', desc: 'Professional deep cleaning & stain removal' },
-  { icon: '🦷', title: 'Dentures', desc: 'Full & partial dentures — comfortable fit' },
-];
-
-const servicesSelect = [
-  { value: 'general-dentistry', label: 'General Dentistry' },
-  { value: 'root-canal', label: 'Root Canal Treatment' },
-  { value: 'teeth-whitening', label: 'Teeth Whitening' },
-  { value: 'implants', label: 'Dental Implants' },
-  { value: 'orthodontics', label: 'Orthodontics / Braces' },
-  { value: 'crowns-bridges', label: 'Crowns & Bridges' },
-  { value: 'pediatric', label: 'Pediatric Dentistry' },
-  { value: 'veneers', label: 'Dental Veneers' },
-  { value: 'oral-surgery', label: 'Oral Surgery' },
-  { value: 'gum-treatment', label: 'Gum Treatment' },
-  { value: 'scaling', label: 'Scaling & Polishing' },
-  { value: 'dentures', label: 'Dentures' },
-];
+import { useState, useEffect } from 'react';
+import { CheckCircle, Star, MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
+import { SERVICES, SERVICES_SELECT, CLINIC, bookingWhatsAppUrl } from '../../constants/clinic';
+import { publicDiscoveryApi } from '../../services/publicDiscovery';
+import type { PublicTenantDoctorBrief, PublicTenantDiscovery } from '../../types';
+import DoctorCard from '../../components/public/DoctorCard';
 
 function ToothSVG() {
   return (
@@ -106,11 +78,27 @@ const testimonials = [
 export default function HomePage() {
   const [form, setForm] = useState({ name: '', phone: '', service: '', date: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [doctors, setDoctors] = useState<PublicTenantDoctorBrief[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchDoctors() {
+      try {
+        const tenants: PublicTenantDiscovery[] = await publicDiscoveryApi.listTenants();
+        if (cancelled || tenants.length === 0) return;
+        const result = await publicDiscoveryApi.listTenantDoctors(tenants[0].id);
+        if (!cancelled) setDoctors(result);
+      } catch {
+        // silently fail — homepage still renders without doctors
+      }
+    }
+    fetchDoctors();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const waText = `Hi, I want to book an appointment.%0AName: ${encodeURIComponent(form.name)}%0APhone: ${encodeURIComponent(form.phone)}%0AService: ${encodeURIComponent(form.service)}%0ADate: ${encodeURIComponent(form.date)}%0AMessage: ${encodeURIComponent(form.message)}`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`, '_blank');
+    window.open(bookingWhatsAppUrl(form), '_blank');
     setSubmitted(true);
   };
 
@@ -146,7 +134,7 @@ export default function HomePage() {
               {/* CTAs */}
               <div className="mt-8 flex flex-wrap items-center gap-4 justify-center lg:justify-start">
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%2C%20I%20want%20to%20book%20an%20appointment%20at%20Nevase%20Dental`}
+                  href={`https://wa.me/${CLINIC.whatsappNumber}?text=Hi%2C%20I%20want%20to%20book%20an%20appointment%20at%20Nevase%20Dental`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-semibold text-white bg-[#0EA5E9] hover:bg-[#0284C7] shadow-lg shadow-[#0EA5E9]/25 transition-all hover:shadow-xl hover:scale-[1.02]"
@@ -155,7 +143,7 @@ export default function HomePage() {
                   <ArrowRight className="w-5 h-5" />
                 </a>
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%2C%20I%20want%20to%20book%20an%20appointment%20at%20Nevase%20Dental`}
+                  href={`https://wa.me/${CLINIC.whatsappNumber}?text=Hi%2C%20I%20want%20to%20book%20an%20appointment%20at%20Nevase%20Dental`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-semibold text-white bg-[#25D366] hover:bg-[#1DA851] shadow-lg shadow-[#25D366]/25 transition-all hover:shadow-xl hover:scale-[1.02]"
@@ -233,7 +221,7 @@ export default function HomePage() {
             <p className="mt-4 text-lg text-[#1E293B]/60 max-w-2xl mx-auto">From routine checkups to advanced cosmetic procedures</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {services.map((s) => (
+            {SERVICES.map((s) => (
               <div
                 key={s.title}
                 className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100 hover:border-[#0EA5E9]/30"
@@ -324,24 +312,23 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A]">Meet Our Specialists</h2>
             <p className="mt-4 text-lg text-[#1E293B]/60 max-w-2xl mx-auto">Experienced dental professionals dedicated to your smile</p>
           </div>
-          <div className="grid sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#0EA5E9]/20">
-                <div className="w-28 h-28 mx-auto mb-5 rounded-full bg-gray-100 flex items-center justify-center">
-                  <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                </div>
-                <h3 className="text-xl font-semibold text-[#0F172A]">Dr. [Name]</h3>
-                <span className="inline-block mt-2 px-3 py-1 bg-[#0EA5E9]/10 text-[#0EA5E9] text-xs font-medium rounded-full">
-                  Dental Specialist
-                </span>
-                <p className="mt-4 text-sm text-[#1E293B]/60">Experienced professional dedicated to your dental health.</p>
-                <button className="mt-5 inline-flex items-center gap-1 px-5 py-2 rounded-lg text-sm font-medium text-[#0EA5E9] bg-[#0EA5E9]/5 hover:bg-[#0EA5E9]/10 transition-colors">
-                  View Profile <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {doctors.length > 0 ? (
+              doctors.map((doctor) => (
+                <DoctorCard key={doctor.id} doctor={doctor} />
+              ))
+            ) : (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-white rounded-2xl p-8 animate-pulse">
+                    <div className="w-28 h-28 mx-auto mb-5 rounded-full bg-gray-200" />
+                    <div className="h-5 w-32 mx-auto bg-gray-200 rounded" />
+                    <div className="h-4 w-24 mx-auto mt-3 bg-gray-200 rounded-full" />
+                  </div>
+                ))}
+              </>
+            )}
           </div>
-          <p className="text-center mt-8 text-sm text-[#1E293B]/40 italic">{/* TODO: fetch from GET /api/v1/doctors */}</p>
         </div>
       </section>
 
@@ -387,7 +374,7 @@ export default function HomePage() {
                   <h3 className="text-xl font-semibold text-[#0F172A]">Message Sent! ✅</h3>
                   <p className="mt-2 text-[#1E293B]/60">We'll get back to you shortly on WhatsApp.</p>
                   <a
-                    href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                    href={`https://wa.me/${CLINIC.whatsappNumber}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#1DA851] transition-colors"
@@ -413,7 +400,7 @@ export default function HomePage() {
                       <label className="block text-sm font-medium text-[#1E293B] mb-1.5">Select Service</label>
                       <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#0EA5E9] focus:ring-2 focus:ring-[#0EA5E9]/20 outline-none transition-all text-sm bg-white">
                         <option value="">Select a service</option>
-                        {servicesSelect.map((s) => (
+                        {SERVICES_SELECT.map((s) => (
                           <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                       </select>
@@ -432,7 +419,7 @@ export default function HomePage() {
                   </button>
                   <p className="text-center text-sm text-[#1E293B]/60">
                     Or call us directly:{' '}
-                    <a href="tel:+918805606018" className="text-[#0EA5E9] font-medium hover:underline">088056 06018</a>
+                    <a href={`tel:${CLINIC.phone}`} className="text-[#0EA5E9] font-medium hover:underline">{CLINIC.phoneDisplay}</a>
                   </p>
                 </form>
               )}
@@ -445,25 +432,25 @@ export default function HomePage() {
                   <MapPin className="w-6 h-6 text-[#0EA5E9] shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-[#0F172A]">Address</h3>
-                    <p className="text-sm text-[#1E293B]/60 mt-1">Besides Vaibhav Medical Store, Jadhav Nagar, Vadgaon Budruk, Pune 411041</p>
+                    <p className="text-sm text-[#1E293B]/60 mt-1">{CLINIC.address}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Phone className="w-6 h-6 text-[#0EA5E9] shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-[#0F172A]">Phone</h3>
-                    <a href="tel:+918805606018" className="text-sm text-[#0EA5E9] hover:underline mt-1 block">088056 06018</a>
+                    <a href={`tel:${CLINIC.phone}`} className="text-sm text-[#0EA5E9] hover:underline mt-1 block">{CLINIC.phoneDisplay}</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Clock className="w-6 h-6 text-[#0EA5E9] shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-[#0F172A]">Timings</h3>
-                    <p className="text-sm text-[#1E293B]/60 mt-1">Mon–Sat: 9:00 AM – 1:00 PM | 5:00 PM – 9:00 PM</p>
+                    <p className="text-sm text-[#1E293B]/60 mt-1">{CLINIC.hours}</p>
                   </div>
                 </div>
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  href={`https://wa.me/${CLINIC.whatsappNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white bg-[#25D366] hover:bg-[#1DA851] transition-colors"
@@ -477,7 +464,7 @@ export default function HomePage() {
               <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 h-[220px]">
                 <iframe
                   title="Nevase Dental Location"
-                  src="https://maps.google.com/maps?q=Vadgaon+Budruk+Pune&output=embed"
+                  src={CLINIC.googleMapsEmbed}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
