@@ -33,7 +33,7 @@ def _parse_date(v: str | datetime | None) -> datetime | None:
 class BillingCreate(BaseModel):
     patient_id: UUID
     appointment_id: UUID | None = None
-    amount: Decimal
+    amount: Decimal = Field(..., ge=Decimal("0.00"))
     status: BillingStatus = BillingStatus.unpaid
     currency: str = "INR"
     idempotency_key: str | None = None
@@ -84,7 +84,7 @@ class BillingRead(BaseModel):
 class BillingUpdate(BaseModel):
     patient_id: UUID | None = None
     appointment_id: UUID | None = None
-    amount: Decimal | None = None
+    amount: Decimal | None = Field(None, ge=Decimal("0.00"))
     status: BillingStatus | None = None
     paid_at: datetime | None = None
     payment_id: str | None = None

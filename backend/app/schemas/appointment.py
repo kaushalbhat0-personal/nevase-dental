@@ -154,7 +154,7 @@ class AppointmentRead(BaseModel):
 
 
 class PrescriptionItemCreate(BaseModel):
-    medicine_name: str = Field(..., max_length=255)
+    medicine_name: str = Field(..., min_length=1, max_length=255)
     dosage: str | None = Field(None, max_length=128)
     frequency: str | None = Field(None, max_length=128)
     duration: str | None = Field(None, max_length=128)

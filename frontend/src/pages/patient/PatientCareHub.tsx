@@ -25,7 +25,7 @@ type CareTab = 'timeline' | 'medicines' | 'vitals' | 'follow-ups';
 
 const careTabs: { key: CareTab; label: string; icon: React.ElementType; route: string }[] = [
   { key: 'timeline', label: 'Timeline', icon: HeartPulse, route: '/patient/care/timeline' },
-  { key: 'medicines', label: 'Medicines', icon: Pill, route: '/patient/care/medicines' },
+  { key: 'medicines', label: 'Medicines', icon: Pill, route: '/patient/medications' },
   { key: 'vitals', label: 'Vitals', icon: Activity, route: '/patient/care/vitals' },
   { key: 'follow-ups', label: 'Follow-ups', icon: Timer, route: '/patient/care/follow-ups' },
 ];

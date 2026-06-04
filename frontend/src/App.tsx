@@ -80,7 +80,6 @@ const PatientVitalsHistory = lazy(() => import('./pages/patient/PatientVitalsHis
 const PatientFollowUps = lazy(() => import('./pages/patient/PatientFollowUps').then(m => ({ default: m.PatientFollowUps })));
 const PatientCommunicationCenter = lazy(() => import('./pages/patient/PatientCommunicationCenter').then(m => ({ default: m.PatientCommunicationCenter })));
 const PatientDocuments = lazy(() => import('./pages/patient/PatientDocuments').then(m => ({ default: m.PatientDocuments })));
-const PatientMedicines = lazy(() => import('./pages/patient/PatientMedicines').then(m => ({ default: m.PatientMedicines })));
 const PatientFamilyHub = lazy(() => import('./pages/patient/PatientFamilyHub').then(m => ({ default: m.default })));
 const PatientEmergencyProfile = lazy(() => import('./pages/patient/PatientEmergencyProfile').then(m => ({ default: m.default })));
 
@@ -743,13 +742,7 @@ function AnimatedRoutes() {
             />
             <Route
               path="medicines"
-              element={
-                <AnimatedPage>
-                  <Suspense fallback={<PageFallback />}>
-                    <PatientMedicines />
-                  </Suspense>
-                </AnimatedPage>
-              }
+              element={<Navigate to="/patient/medications" replace />}
             />
             <Route
               path="vitals"
@@ -945,7 +938,7 @@ function AnimatedRoutes() {
           {/* ── BACKWARD-COMPATIBLE REDIRECTS ────────────────────────────── */}
           {/* Old primary tab routes → new locations */}
           <Route path="timeline" element={<Navigate to="/patient/care/timeline" replace />} />
-          <Route path="medicines" element={<Navigate to="/patient/care/medicines" replace />} />
+          <Route path="medicines" element={<Navigate to="/patient/medications" replace />} />
           <Route path="vitals" element={<Navigate to="/patient/care/vitals" replace />} />
           <Route path="follow-ups" element={<Navigate to="/patient/care/follow-ups" replace />} />
           <Route path="encounters/:appointmentId" element={<RedirectEncounterDetail />} />

@@ -123,7 +123,7 @@ export function PatientCareContinuityCard({
               </p>
             </div>
             <Link
-              to="/patient/care/medicines"
+              to="/patient/medications"
               className="shrink-0 text-xs font-medium text-primary hover:underline"
             >
               View

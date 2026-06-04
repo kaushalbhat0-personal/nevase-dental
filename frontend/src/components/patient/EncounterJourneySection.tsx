@@ -75,7 +75,7 @@ export function EncounterJourneySection({
         : null,
       completed: (prescriptions?.length ?? 0) > 0,
       action: (prescriptions?.length ?? 0) > 0
-        ? { label: 'View medicines', to: '/patient/care/medicines' }
+        ? { label: 'View medicines', to: '/patient/medications' }
         : undefined,
     },
     {
