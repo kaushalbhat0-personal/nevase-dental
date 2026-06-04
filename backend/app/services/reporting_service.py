@@ -614,3 +614,65 @@ def get_patient_financial_ledger(
         bills=bill_summaries,
         encounters=encounter_refs,
     )
+
+
+# ── Single-bill Aggregate ─────────────────────────────────────────────────────
+
+
+def get_billing_aggregate(
+    db: Session,
+    bill_id: UUID,
+    current_user: User,
+    tenant_id: UUID | None = None,
+) -> BillingReportAggregate:
+    """
+    Get the billing aggregate for a single bill.
+
+    Used by invoice PDF generation and single-bill exports.
+    """
+    # Load bill with relationships
+    bill = (
+        db.query(Billing)
+        .options(
+            joinedload(Billing.patient),
+            joinedload(Billing.appointment).joinedload(Appointment.doctor),
+        )
+        .filter(Billing.id == bill_id, Billing.is_deleted == False)
+        .first()
+    )
+    if bill is None:
+        raise NotFoundError("Bill not found")
+
+    eff_tenant_id = bill.tenant_id or tenant_id or UUID(int=0)
+
+    # Compute inventory amount
+    inv_amounts = _compute_inventory_amounts(db, [bill.id])
+    inv_amt = inv_amounts.get(bill.id, Decimal("0.00"))
+    consult_amt = Decimal(str(bill.amount)) - inv_amt
+    if consult_amt < Decimal("0.00"):
+        consult_amt = Decimal("0.00")
+
+    doctor_name: str | None = None
+    appointment_time: datetime | None = None
+    if bill.appointment is not None:
+        doctor_name = bill.appointment.doctor.name if bill.appointment.doctor else None
+        appointment_time = bill.appointment.appointment_time
+
+    return BillingReportAggregate(
+        bill_id=bill.id,
+        patient_id=bill.patient_id,
+        patient_name=bill.patient.name if bill.patient else "Unknown",
+        doctor_id=bill.appointment.doctor_id if bill.appointment else None,
+        doctor_name=doctor_name,
+        appointment_id=bill.appointment_id,
+        appointment_time=appointment_time,
+        tenant_id=eff_tenant_id,
+        bill_amount=Decimal(str(bill.amount)),
+        consultation_amount=consult_amt,
+        inventory_amount=inv_amt,
+        status=bill.status,
+        paid_at=bill.paid_at,
+        paid_via=bill.payment_method,
+        created_by=bill.created_by,
+        created_at=bill.created_at,
+    )
