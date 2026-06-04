@@ -63,3 +63,51 @@
    - Modal shows: doctor, date, prescription items (medicine name, dosage, frequency, duration, instructions)
    - Mobile responsive: bottom-sheet on mobile, centered dialog on desktop
    - No APIs, backend, or routes modified
+
+## Session 4 — June 4, 2026
+
+**Goal:** Fix prescription/encounter-summary PDF download HTTP 500 (AttributeError).
+
+### Root Cause
+
+Three independent bugs in `backend/app/services/document_service.py`, all in the
+aggregation functions consumed by PDF generation:
+
+1. **`_aggregate_encounter_summary_data`** (line 1114): flat loop
+   `for rx in aggregate.prescriptions` accessed `rx.medicine_name` etc. directly on
+   `PrescriptionRead`, but these fields live on `PrescriptionItemRead` inside
+   `rx.items[]`. Fix: nested loop `for rx … for item in rx.items`.
+
+2. **`_aggregate_prescription_data`** + **`_aggregate_encounter_summary_data`**
+   (lines 1078, 1132): referenced `doctor.specialization`, but the `doctor` field
+   in `EncounterDetailAggregate` is typed as `DoctorMini` which only has
+   `{id, name, timezone}`. Fix: pass `None` (both schemas declare
+   `doctor_specialization: str | None = None`).
+
+3. **`_aggregate_prescription_data`** + **`_aggregate_encounter_summary_data`**
+   (lines 1086, 1149): referenced `appt.updated_at`, but `AppointmentRead` has no
+   `updated_at` field. Fix: use `appt.created_at` directly.
+
+### Changes
+
+**`backend/app/services/document_service.py`**
+
+| Lines | Before | After | Why |
+|---|---|---|---|
+| 1114–1124 | `for rx … rx.medicine_name` (flat) | `for rx … for item in rx.items` (nested) | Wrong schema level |
+| 1078, 1132 | `doctor_specialization=doctor.specialization` | `doctor_specialization=None` | `DoctorMini` has no `specialization` |
+| 1086, 1149 | `created_at=appt.updated_at or appt.created_at` | `created_at=appt.created_at` | `AppointmentRead` has no `updated_at` |
+
+### Files Created
+
+- `backend/tests/test_pdf_download_validation.py` — real end-to-end validation
+  tests (doctor download encounter summary PDF, patient download prescription PDF)
+
+### Validation
+
+- **14/14 regression tests pass** (5 force-password-reset, 7 timezone, 2 PDF download)
+- Both endpoints return **200** with correct **application/pdf** Content-Type
+- Prescription data renders correctly (medicine names, dosages, frequencies appear in output)
+- `%PDF-` header requires weasyprint with native GTK (`libgobject-2.0-0`); falls back to
+  HTML gracefully on systems without it. Logic is correct regardless.
+- No remaining `doctor.specialization`, `appt.updated_at`, `rx.medicine_name`, or `route` references

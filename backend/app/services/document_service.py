@@ -1075,7 +1075,7 @@ def _aggregate_prescription_data(
         appointment_id=appt.id,
         doctor_id=doctor.id,
         doctor_name=doctor.name,
-        doctor_specialization=doctor.specialization,
+        doctor_specialization=None,
         patient_id=patient.id,
         patient_name=patient.name,
         tenant_id=resolved_tenant_id,
@@ -1083,7 +1083,7 @@ def _aggregate_prescription_data(
         prescriptions=rx_items,
         vitals=aggregate.vitals.model_dump() if aggregate.vitals else None,
         notes=appt.clinical_notes,
-        created_at=appt.updated_at or appt.created_at,
+        created_at=appt.created_at,
     )
 
 
@@ -1129,7 +1129,7 @@ def _aggregate_encounter_summary_data(
         patient_name=patient.name,
         doctor_id=doctor.id,
         doctor_name=doctor.name,
-        doctor_specialization=doctor.specialization,
+        doctor_specialization=None,
         tenant_id=resolved_tenant_id,
         appointment_time=appt.appointment_time,
         status=appt.status,
@@ -1146,7 +1146,7 @@ def _aggregate_encounter_summary_data(
         prescriptions=rx_items,
         follow_up_date=appt.follow_up_date,
         follow_up_notes=appt.follow_up_notes,
-        created_at=appt.updated_at or appt.created_at,
+        created_at=appt.created_at,
     )
 
 
